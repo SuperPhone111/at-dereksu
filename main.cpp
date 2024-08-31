@@ -1,15 +1,15 @@
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
-#include <cmath>
-//Google : cplusplus, stackoverflow, geeksforgeeks
+// Google : cplusplus, stackoverflow, geeksforgeeks
 
 #include "includes.h"
 
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 1;
+  int testID = 2;
 
   if (argc < 2) {
     printf("use default testID %d", testID);
@@ -105,8 +105,8 @@ void basic_binaryTree_creation_breathFirst() {
   //  /   \      /    \
   // 2(3) 9(4)  1(5)   null(6)
 
-  // METHOD 1: allocation memory along initialization
-  // METHOD 2: allocation memory at once
+  // METHOD 1: allocation memory along initialization (X)
+  // METHOD 2: allocation memory at once (O)
 
   vector<STreeNode> nodes;
   for (auto &ir : vals) {
@@ -118,36 +118,32 @@ void basic_binaryTree_creation_breathFirst() {
   printNodes(nodes);
 }
 
-STreeNode* createDFPreOrderRec(vector<STreeNode>&  nodes, int maxDepthNo, int depth, int & dataIdx)
-{
+STreeNode *createDFPreOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
+                               int depth, int &dataIdx) {
   // f(x) = {root} + f(root->left) + f(root->right)
   STreeNode *root = nullptr;
 
-  //excetion
-  if(depth == maxDepthNo){
-    if(dataIdx < nodes.size()){
+  // excetion
+  if (depth == maxDepthNo) {
+    if (dataIdx < nodes.size()) {
       root = &(nodes[dataIdx]);
       dataIdx++;
     }
     return root;
   }
 
-  //general
+  // general
   root = &(nodes[dataIdx]);
   dataIdx++;
 
-  root->left = createDFPreOrderRec(nodes, maxDepthNo, depth+1, dataIdx);
-  root->right = createDFPreOrderRec(nodes, maxDepthNo, depth+1, dataIdx);
-  
-  return root; 
+  root->left = createDFPreOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+  root->right = createDFPreOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+
+  return root;
 }
 
-
-
-
-STreeNode* createDFTree_PreOrder(vector<STreeNode>& nodes)
-{
-  STreeNode* root= nullptr;
+STreeNode *createDFTree_PreOrder(vector<STreeNode> &nodes) {
+  STreeNode *root = nullptr;
   int maxDepthNo = (int)log2((double)nodes.size());
   // Depth-first binary tree 1) Pre-order traversal  : Root, Left, Right
   //      8(0)
@@ -155,34 +151,107 @@ STreeNode* createDFTree_PreOrder(vector<STreeNode>& nodes)
   //   5(1)     9(4)
   //  /   \      /    \
   // 3(2) 2(3)  1(5)   null(6)
-  
-  //input/condition: maxDepthNo
-  //output (return, reference) : return root
-  //variables among iterations: depth, dataIdx
-  // f(x) = {root} + f(root->left) + f(root->right)
+
+  // input/condition: maxDepthNo
+  // output (return, reference) : return root
+  // variables among iterations: depth, dataIdx
+  //  f(x) = {root} + f(root->left) + f(root->right)
   int depth = 0;
   int dataIdx = 0;
   root = createDFPreOrderRec(nodes, maxDepthNo, depth, dataIdx);
   return root;
 }
 
+STreeNode *createDFInOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
+                              int depth, int &dataIdx) {
+  // f(x) = f(root->left) + {root} + f(root->right)
+  STreeNode *root = nullptr;
+  // if (depth > maxDepthNo || dataIdx >= nodes.size()) {
+  //   return nullptr;
+  // }
+  if (depth == maxDepthNo) {
+    if (dataIdx < nodes.size()) {
+      root = &(nodes[dataIdx]);
+      dataIdx++;
+    }
+    return root;
+  }
 
-STreeNode* createDFTree_InOrder(vector<STreeNode>& nodes){
-  STreeNode* root= nullptr;
-  //HW0829
+  STreeNode *left = createDFInOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+
+  root = &nodes[dataIdx++];
+  root->left = left;
+
+  STreeNode *right = createDFInOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+  root->right = right;
+
   return root;
 }
-STreeNode* createDFTree_PostOrder(vector<STreeNode>& nodes){
-  STreeNode* root= nullptr;
-  //HW0829
+
+STreeNode *createDFTree_InOrder(vector<STreeNode> &nodes) {
+  STreeNode *root = nullptr;
+  int maxDepthNo = (int)log2((double)nodes.size());
+  // HW0829
+  // vector<int> vals({8, 5, 3, 2, 9, 1});
+  // Depth-first binary tree 2) In-order traversal : Left, Root, Right
+  //      2(3)
+  //    /      \
+  //   5(1)     1(5)
+  //  /   \      /    \
+  // 8(0) 3(2)  9(4)   null(6)
+  int depth = 0;
+  int dataIdx = 0;
+  root = createDFInOrderRec(nodes, maxDepthNo, depth, dataIdx);
   return root;
 }
 
+STreeNode *createDFPostOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
+                              int depth, int &dataIdx) {
+  // f(x) = f(root->left) + {root->right} + f(root)
+  STreeNode* root = nullptr;
+  if (depth > maxDepthNo || dataIdx >= nodes.size()) {
+    return nullptr;
+  }
 
-void basic_binaryTree_creation_depthFirst(){
+  STreeNode* left = createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+  STreeNode* right = createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+
+  root= &nodes[dataIdx];
+  root->left = left;
+  root->right = right;
+  dataIdx++;
+
+  return root;
+}
+
+STreeNode *createDFTree_PostOrder(vector<STreeNode> &nodes) {
+  STreeNode *root = nullptr;
+  int maxDepthNo = (int)log2((double)nodes.size());
+  // HW0829
+  // vector<int> vals({8, 5, 3, 2, 9, 1});
+  // Depth-first binary tree 3) Post-order traversal : Left, Right, Root
+  //      null(6) ?
+  //    /        \
+  //   3(2)      1(5)
+  //  /   \      /   \
+  // 8(0) 5(1)  2(3)   9(4)
+
+  // Derek how to construct this tree ??
+  //      1(5)
+  //    /      \
+  //   3(2)      9(4)
+  //  /   \      /   \
+  // 8(0) 5(1)  2(3)
+  int depth = 0;
+  int dataIdx = 0;
+  root = createDFPostOrderRec(nodes, maxDepthNo, depth, dataIdx);
+  return root;
+}
+
+void basic_binaryTree_creation_depthFirst() {
   vector<int> vals({8, 5, 3, 2, 9, 1});
   vector<STreeNode> nodes;
-  STreeNode* root = nullptr;
+  STreeNode *root = nullptr;
 
   printf("== Depth First: Pre-order ==\n");
   // Depth-first binary tree 1) Pre-order traversal  : Root, Left, Right
@@ -197,7 +266,6 @@ void basic_binaryTree_creation_depthFirst(){
   root = createDFTree_PreOrder(nodes);
   printf("root value = %d\n", root->val);
   printNodes(nodes);
-  
 
   printf("== Depth First: In-order ==\n");
   // Depth-first binary tree 2) In-order traversal : Left, Root, Right
@@ -234,5 +302,4 @@ void basic_binaryTree_creation_depthFirst(){
   root = createDFTree_PostOrder(nodes);
   printf("root value = %d\n", root->val);
   printNodes(nodes);
-  
 }
