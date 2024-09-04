@@ -21,11 +21,14 @@ int main(int argc, char **argv) {
   case 0:
     printf("hello world\n");
     break;
-  case 1:
+  case 1: //binary tree - BF creation
     basic_binaryTree_creation_breathFirst();
     break;
-  case 2:
+  case 2: //binary tree- DF creation
     basic_binaryTree_creation_depthFirst();
+    break;
+  case 3: //binary tree- DF traversal
+    basic_binaryTree_traversal();
     break;
   default:
     printf("not a supported testID %d\n", testID);
@@ -206,17 +209,18 @@ STreeNode *createDFTree_InOrder(vector<STreeNode> &nodes) {
 }
 
 STreeNode *createDFPostOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
-                              int depth, int &dataIdx) {
+                                int depth, int &dataIdx) {
   // f(x) = f(root->left) + {root->right} + f(root)
-  STreeNode* root = nullptr;
+  STreeNode *root = nullptr;
   if (depth > maxDepthNo || dataIdx >= nodes.size()) {
     return nullptr;
   }
 
-  STreeNode* left = createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
-  STreeNode* right = createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+  STreeNode *left = createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
+  STreeNode *right =
+      createDFPostOrderRec(nodes, maxDepthNo, depth + 1, dataIdx);
 
-  root= &nodes[dataIdx];
+  root = &nodes[dataIdx];
   root->left = left;
   root->right = right;
   dataIdx++;
@@ -302,4 +306,78 @@ void basic_binaryTree_creation_depthFirst() {
   root = createDFTree_PostOrder(nodes);
   printf("root value = %d\n", root->val);
   printNodes(nodes);
+}
+
+vector<int> traverseBTPreOrder(STreeNode *root) {
+
+  //       8
+  //    /     \
+  //   5        3
+  //  /   \    /
+  // 2    9   1
+
+  // Pre-order traversal : root, left, right:  {8, 5, 2, 9, 3, 1}
+  return vector<int>(0);
+}
+
+vector<int> traverseBTInOrder(STreeNode *root) {
+  //       8
+  //    /     \
+  //   5        3
+  //  /   \    /
+  // 2    9   1
+  // In-order traversal : left, root, right:  {2, 5, 9, 8, 1, 3}
+  return vector<int>(0);
+}
+
+vector<int> traverseBTPostOrder(STreeNode *root) {
+  //       8
+  //    /     \
+  //   5        3
+  //  /   \    /
+  // 2    9   1
+  // traversal : left, right, root:  {5, 2, 9, 3, 1, 8}
+  return vector<int>(0);
+}
+
+void basic_binaryTree_traversal() {
+  vector<int> vals({8, 5, 3, 2, 9, 1});
+
+  STreeNode *root = nullptr;
+  vector<STreeNode> nodes;
+  for (auto &ir : vals) {
+    nodes.push_back(STreeNode(ir));
+  }
+
+  root = createBFTree(nodes);
+  printNodes(nodes);
+  //       8
+  //    /     \
+  //   5        3
+  //  /   \    /
+  // 2    9   1
+
+  // Pre-order traversal : root, left, right:  {8, 5, 2, 9, 3, 1}
+  // In-order traversal : left, root, right:   {2, 5, 9, 8, 1, 3}
+  // Post-order traversal : left, right, root: {2, 9, 5, 1, 3, 8}
+
+  vector<int> traversed;
+
+  printf("== Pre-order traversal === \n");
+  traversed = traverseBTPreOrder(root);
+  for (auto &ir : traversed)
+    printf("%d ", ir);
+  printf("\n");
+
+  printf("== In-order traversal === \n");
+  traversed = traverseBTInOrder(root);
+  for (auto &ir : traversed)
+    printf("%d ", ir);
+  printf("\n");
+
+  printf("== Post-order traversal === \n");
+  traversed = traverseBTPostOrder(root);
+  for (auto &ir : traversed)
+    printf("%d ", ir);
+  printf("\n");
 }
