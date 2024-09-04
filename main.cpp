@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
   int testID = 2;
 
   if (argc < 2) {
-    printf("use default testID %d", testID);
+    printf("use default testID %d\n", testID);
   } else {
     testID = atoi(argv[1]);
   }
