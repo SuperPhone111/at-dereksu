@@ -21,23 +21,31 @@ int main(int argc, char **argv) {
   case 0:
     printf("hello world\n");
     break;
-  case 1: //binary tree - BF creation
+  case 1: // binary tree - BF creation
     basic_binaryTree_creation_breathFirst();
     break;
-  case 2: //binary tree- DF creation
+  case 2: // binary tree- DF creation
     basic_binaryTree_creation_depthFirst();
     break;
-  case 3: //binary tree- DF traversal
+  case 3: // binary tree- DF traversal
     basic_binaryTree_traversal();
+    break;
+  case 5:
+    leetcode_balanced_tree();
+    break;
+  case 6:
+    leetcode_recursive_leafs();
+    break;
+  case 7:
+    leetcode_bt_distanceK();
+    break;
+  case 8: // recursive, backtracking, caching
+    leetcode_fibonacci_seq();
     break;
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
   }
-
-  // data structure - binary tree
-  //  binary tree (BT) creation - DF, BF
-  //  BT traversal- DF
 
   // recursive
   //  top-down programming (backtracking)
@@ -380,4 +388,267 @@ void basic_binaryTree_traversal() {
   for (auto &ir : traversed)
     printf("%d ", ir);
   printf("\n");
+}
+
+void leetcode_balanced_tree() {
+  vector<STreeNode> nodeData(6);
+  nodeData[0].val = 7;
+  nodeData[0].left = &(nodeData[1]);
+  nodeData[0].right = &(nodeData[2]);
+  nodeData[1].val = 9;
+  nodeData[1].left = &(nodeData[3]);
+  nodeData[1].right = &(nodeData[4]);
+  nodeData[2].val = 1;
+
+  nodeData[3].val = 5;
+  nodeData[4].val = 4;
+  nodeData[4].left = &(nodeData[5]);
+  nodeData[5].val = 6;
+
+  //             7
+  //            / \
+  //           9   1
+  //          / \
+  //         5   4
+  //             /
+  //            6
+  printNodes(nodeData);
+  //---------------//
+  STreeNode *root = &(nodeData[0]);
+  printf("root value is %d\n", root->val);
+  // Q:  Given an unbalanced binary tree, make it in-order balanced tree.
+
+  //      6
+  //     /  \
+  //   5     1
+  //  / \   / \
+  // 9   4 7   NULL
+
+  // TBD
+}
+
+class CRecurLeafBase {
+public:
+  virtual vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
+    printf("No implementation\n");
+    return vector<vector<int>>(0);
+  }
+};
+
+class CRecurLeaf : public CRecurLeafBase {
+public:
+  vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
+    // TBD
+    return vector<vector<int>>(0);
+  }
+};
+
+void leetcode_recursive_leafs() {
+
+  //             7
+  //            / \
+  //           9   1
+  //          /     \
+  //         5       2
+  //     {5, 2}, {9, 1}, {7}
+
+  //             7
+  //            / \
+  //           9   1
+  //          /
+  //         5
+  //     {5, 1}, {9}, {7}
+
+  vector<STreeNode> nodeData(7);
+  nodeData[0].val = 7;
+  nodeData[0].left = &(nodeData[1]);
+  nodeData[0].right = &(nodeData[2]);
+  nodeData[1].val = 9;
+  nodeData[1].left = &(nodeData[3]);
+  nodeData[1].right = &(nodeData[4]);
+  nodeData[2].val = 1;
+  nodeData[2].right = &(nodeData[6]);
+  nodeData[3].val = 5;
+  nodeData[4].val = 4;
+  nodeData[4].left = &(nodeData[5]);
+  nodeData[5].val = 6;
+  nodeData[6].val = 2;
+  //             7
+  //            / \
+  //           9   1
+  //          / \    \
+  //         5   4   2
+  //             /
+  //            6
+  //
+  printNodes(nodeData);
+
+  //---------------//
+  STreeNode *tree = &(nodeData[0]);
+
+  // Q:  Given binary tree, print out the leave values at different layers
+  //   Examples: {5, 6, 2} {4, 1} {9}, {7}
+  CRecurLeaf solDerived;
+  CRecurLeafBase *sol = &solDerived;
+
+  vector<vector<int>> vecOut;
+  vecOut = sol->getLayeredLeaveValues(tree);
+  for (auto ir : vecOut) {
+    for (auto ir_t : ir) {
+      printf("%d ", ir_t);
+    }
+    printf("\n");
+  }
+}
+class CSolDistanceKInBTBase {
+public:
+  virtual vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    return vector<int>();
+  }
+};
+
+class CSolDistanceKInBT : public CSolDistanceKInBTBase {
+public:
+  virtual vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    // TBD
+    return vector<int>();
+  }
+};
+
+void leetcode_bt_distanceK() {
+
+  CSolDistanceKInBT objDerived;
+  CSolDistanceKInBTBase *obj;
+  obj = &objDerived;
+
+  int k;
+  vector<int> kVals;
+
+  STreeNode *root = nullptr;
+  STreeNode *target = nullptr;
+  vector<STreeNode> nodeData;
+  printf("-- case 0 --\n");
+  nodeData.clear();
+  nodeData.resize(4);
+  nodeData[0].val = 0;
+  nodeData[1].val = 1;
+  nodeData[2].val = 3;
+  nodeData[3].val = 2;
+  nodeData[0].left = &(nodeData[1]);
+  nodeData[1].left = &(nodeData[2]);
+  nodeData[1].right = &(nodeData[3]);
+
+  root = &(nodeData[0]);
+  target = &(nodeData[3]);
+  k = 1;
+
+  kVals = obj->distanceK(root, target, k);
+
+  printf("[");
+  for (auto ir : kVals) {
+    printf("%d ", ir);
+  }
+  printf("] => ans: [1]\n");
+
+  printf("-- case 1 --\n");
+  nodeData.clear();
+  nodeData.resize(7);
+  nodeData[0].val = 7;
+  nodeData[0].left = &(nodeData[1]);
+  nodeData[0].right = &(nodeData[2]);
+  nodeData[1].val = 9;
+  nodeData[1].left = &(nodeData[3]);
+  nodeData[1].right = &(nodeData[4]);
+  nodeData[2].val = 1;
+  nodeData[2].right = &(nodeData[6]);
+  nodeData[3].val = 5;
+  nodeData[4].val = 4;
+  nodeData[4].left = &(nodeData[5]);
+  nodeData[5].val = 6;
+  nodeData[6].val = 2;
+  //              7 (0)
+  //            /      \
+  //           9 (1)    1 (2)
+  //          / \         /  \
+  //       5(3)  4 (4)  null   2(6)
+  //             /
+  //            6 (5)
+
+  printNodes(nodeData);
+
+  root = &(nodeData[0]);
+  target = &(nodeData[4]);
+  k = 2;
+
+  kVals = obj->distanceK(root, target, k);
+
+  printf("[");
+  for (auto ir : kVals) {
+    printf("%d ", ir);
+  }
+  printf("] => ans: [5 7]\n");
+
+  printf("-- case 2 --\n");
+  nodeData.clear();
+  nodeData.resize(9);
+
+  nodeData[0].val = 3;
+  nodeData[0].left = &(nodeData[1]);
+  nodeData[0].right = &(nodeData[2]);
+
+  nodeData[1].val = 5;
+  nodeData[1].left = &(nodeData[3]);
+  nodeData[1].right = &(nodeData[4]);
+
+  nodeData[3].val = 6;
+
+  nodeData[4].val = 2;
+  nodeData[4].left = &(nodeData[7]);
+  nodeData[4].right = &(nodeData[8]);
+  nodeData[7].val = 7;
+  nodeData[8].val = 4;
+
+  nodeData[2].val = 1;
+  nodeData[2].left = &(nodeData[5]);
+  nodeData[2].right = &(nodeData[6]);
+  nodeData[5].val = 0;
+  nodeData[6].val = 8;
+
+  printNodes(nodeData);
+
+  root = &(nodeData[0]);
+  target = &(nodeData[1]);
+  k = 2;
+
+  kVals = obj->distanceK(root, target, k);
+
+  printf("[");
+  for (auto ir : kVals) {
+    printf("%d ", ir);
+  }
+  printf("] => ans: [7 4 1]\n");
+}
+
+int getFibSeq(int k) {
+
+  return -1; // please modify it.
+}
+void leetcode_fibonacci_seq() {
+
+  // Fibonacci (費氏函數)
+  // Formula : X(n) = X(n-1) + X(n-2)
+  //           X(0) = 0, X(1) = 1
+  //  {0,   1,   1,    2, 3, 5, 8....}
+  //  X(0) X(1) X(2)  X(3) ........ X(N-1)
+  //
+  //
+  //  Q: Given k, derive X(k)
+  //.    For example : X(0) = 0, when k=0
+  //.                  X(2) = 1, when k=2
+  //                   X(4) = 3, when k=3
+
+  int k = 10;
+  int Xk = getFibSeq(k);
+
+  printf("X%d= %d\n", k, Xk);
 }
