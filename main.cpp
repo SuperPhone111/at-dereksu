@@ -9,7 +9,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 2;
+  int testID = 3;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -24,10 +24,10 @@ int main(int argc, char **argv) {
   case 1: // binary tree - BF creation
     basic_binaryTree_creation_breathFirst();
     break;
-  case 2: // binary tree- DF creation
+  case 2: // binary tree- DF creation (1D -> tree)
     basic_binaryTree_creation_depthFirst();
     break;
-  case 3: // binary tree- DF traversal
+  case 3: // binary tree- DF traversal (tree -> 1D)
     basic_binaryTree_traversal();
     break;
   case 5:
@@ -153,23 +153,84 @@ STreeNode *createDFPreOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
   return root;
 }
 
+STreeNode *createDFPreOrderRec(vector<STreeNode> &nodes, int startIdx,
+                               int endIdx) {
+  //  f(x) = {root} + f(root->left) + f(root->right)
+  //   startIdx        startIdx +1              endIdx
+  STreeNode *root = nullptr;
+  // exception
+  // only one node
+  if (startIdx == endIdx) {
+    return &(nodes[startIdx]);
+  }
+  // only two nodes
+  if (startIdx + 1 == endIdx) {
+    nodes[startIdx].left = &(nodes[endIdx]);
+    return &(nodes[startIdx]);
+  }
+
+  // general case
+  int rootIdx = startIdx;
+  root = &(nodes[rootIdx]);
+
+  int len = endIdx - (startIdx + 1) + 1;
+
+  root->left =
+      createDFPreOrderRec(nodes, startIdx + 1, startIdx + 1 + len / 2 - 1);
+  root->right = createDFPreOrderRec(nodes, startIdx + 1 + len / 2, endIdx);
+
+  return root;
+}
+
 STreeNode *createDFTree_PreOrder(vector<STreeNode> &nodes) {
   STreeNode *root = nullptr;
-  int maxDepthNo = (int)log2((double)nodes.size());
-  // Depth-first binary tree 1) Pre-order traversal  : Root, Left, Right
-  //      8(0)
-  //    /      \
-  //   5(1)     9(4)
-  //  /   \      /    \
-  // 3(2) 2(3)  1(5)   null(6)
 
-  // input/condition: maxDepthNo
-  // output (return, reference) : return root
-  // variables among iterations: depth, dataIdx
-  //  f(x) = {root} + f(root->left) + f(root->right)
-  int depth = 0;
-  int dataIdx = 0;
-  root = createDFPreOrderRec(nodes, maxDepthNo, depth, dataIdx);
+  enum IMPLT_ID_ {
+    IMPLT_MAXDEPTH = 0,
+    IMPLT_DIV_N_CONQ,
+  };
+
+  int impltID = IMPLT_DIV_N_CONQ;
+
+  if (impltID == IMPLT_MAXDEPTH) {
+    int maxDepthNo = (int)log2((double)nodes.size());
+    // Depth-first binary tree 1) Pre-order traversal  : Root, Left, Right
+    //      8(0)
+    //    /      \
+    //   5(1)     9(4)
+    //  /   \      /    \
+    // 3(2) 2(3)  1(5)   null(6)
+
+    // input/condition: maxDepthNo
+    // output (return, reference) : return root
+    // variables among iterations: depth, dataIdx
+    //  f(x) = {root} + f(root->left) + f(root->right)
+    int depth = 0;
+    int dataIdx = 0;
+    root = createDFPreOrderRec(nodes, maxDepthNo, depth, dataIdx);
+  } else if (impltID == IMPLT_DIV_N_CONQ) {
+    // Depth-first binary tree 1) Pre-order traversal  : Root, Left, Right
+    //      8(0)
+    //    /         \
+    //   5(1)         2(3)
+    //  /   \         /    \
+    // 3(2) null(6)   9(4)  1(5)
+    //
+    //  f(x) = {root} + f(root->left) + f(root->right)
+    //         {  8 ,    5, 3, 2,        4, 1         }
+    //
+    // (1) input /condition : startIdx, endIdx, nodes
+    // (2) output : return root
+    // (3) variable among iterations :
+    int startIdx = 0;
+    int endIdx = nodes.size() - 1;
+    root = createDFPreOrderRec(nodes, startIdx, endIdx);
+
+  } else {
+    printf("Not a supported implementation ID : %d\n", impltID);
+    exit(-1);
+  }
+
   return root;
 }
 
@@ -199,20 +260,74 @@ STreeNode *createDFInOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
   return root;
 }
 
+STreeNode *createDFInOrderRec(vector<STreeNode> &nodes, int startIdx,
+                              int endIdx) {
+  //  f(x) =  f(root->left) + {root} + f(root->right)
+
+  STreeNode *root = nullptr;
+  // exception
+  // only one node
+  if (startIdx == endIdx) {
+    return &(nodes[startIdx]);
+  }
+
+  // only two nodes
+  if (startIdx + 1 == endIdx) {
+    nodes[endIdx].left = &(nodes[startIdx]);
+    return &(nodes[endIdx]);
+  }
+
+  // general case
+  int rootIdx = startIdx + (endIdx - startIdx + 1) / 2;
+  root = &(nodes[rootIdx]);
+
+  root->left = createDFInOrderRec(nodes, startIdx, rootIdx - 1);
+  root->right = createDFInOrderRec(nodes, rootIdx + 1, endIdx);
+
+  return root;
+}
+
 STreeNode *createDFTree_InOrder(vector<STreeNode> &nodes) {
   STreeNode *root = nullptr;
-  int maxDepthNo = (int)log2((double)nodes.size());
-  // HW0829
-  // vector<int> vals({8, 5, 3, 2, 9, 1});
-  // Depth-first binary tree 2) In-order traversal : Left, Root, Right
-  //      2(3)
-  //    /      \
-  //   5(1)     1(5)
-  //  /   \      /    \
-  // 8(0) 3(2)  9(4)   null(6)
-  int depth = 0;
-  int dataIdx = 0;
-  root = createDFInOrderRec(nodes, maxDepthNo, depth, dataIdx);
+
+  enum IMPLT_ID_ {
+    IMPLT_MAXDEPTH = 0,
+    IMPLT_DIV_N_CONQ,
+  };
+
+  int impltID = IMPLT_DIV_N_CONQ;
+
+  if (impltID == IMPLT_MAXDEPTH) {
+    int maxDepthNo = (int)log2((double)nodes.size());
+    // HW0829
+    // vector<int> vals({8, 5, 3, 2, 9, 1});
+    // Depth-first binary tree 2) In-order traversal : Left, Root, Right
+    //      2(3)
+    //    /      \
+    //   5(1)     1(5)
+    //  /   \      /    \
+    // 8(0) 3(2)  9(4)   null(6)
+    int depth = 0;
+    int dataIdx = 0;
+    root = createDFInOrderRec(nodes, maxDepthNo, depth, dataIdx);
+  } else if (impltID == IMPLT_DIV_N_CONQ) {
+
+    // vector<int> vals({8, 5, 3, 2, 9, 1});
+    // Depth-first binary tree 2) In-order traversal : Left, Root, Right
+    //      2(3)
+    //    /      \
+    //   5(1)     1(5)
+    //  /   \      /    \
+    // 8(0) 3(2)  9(4)   null(6)
+    int startIdx = 0;
+    int endIdx = nodes.size() - 1;
+    root = createDFInOrderRec(nodes, startIdx, endIdx);
+
+  } else {
+    printf("Not a supported implementation ID : %d\n", impltID);
+    exit(-1);
+  }
+
   return root;
 }
 
@@ -235,28 +350,80 @@ STreeNode *createDFPostOrderRec(vector<STreeNode> &nodes, int maxDepthNo,
 
   return root;
 }
+STreeNode *createDFPostOrderRec(vector<STreeNode> &nodes, int startIdx,
+                                int endIdx) {
+  // f(x) = f(root->left) + {root->right} + {root}
+  //  left, right root
+  STreeNode *root = nullptr;
+
+  // exception
+  // only one node
+  if (startIdx == endIdx) {
+    return &(nodes[startIdx]);
+  }
+
+  // only two nodes
+  if (startIdx + 1 == endIdx) {
+    nodes[endIdx].left = &(nodes[startIdx]);
+    return &(nodes[endIdx]);
+  }
+
+  // general case
+  int rootIdx = endIdx;
+  root = &(nodes[rootIdx]);
+  int len = (endIdx - 1) - startIdx + 1;
+
+  root->left = createDFPostOrderRec(nodes, startIdx, startIdx + len / 2 - 1);
+  root->right = createDFPostOrderRec(nodes, startIdx + len / 2, endIdx - 1);
+
+  return root;
+}
 
 STreeNode *createDFTree_PostOrder(vector<STreeNode> &nodes) {
   STreeNode *root = nullptr;
-  int maxDepthNo = (int)log2((double)nodes.size());
-  // HW0829
-  // vector<int> vals({8, 5, 3, 2, 9, 1});
-  // Depth-first binary tree 3) Post-order traversal : Left, Right, Root
-  //      null(6) ?
-  //    /        \
+
+  enum IMPLT_ID_ {
+    IMPLT_MAXDEPTH = 0,
+    IMPLT_DIV_N_CONQ,
+  };
+
+  int impltID = IMPLT_DIV_N_CONQ;
+
+  if (impltID == IMPLT_MAXDEPTH) {
+    int maxDepthNo = (int)log2((double)nodes.size());
+    // HW0829
+    // vector<int> vals({8, 5, 3, 2, 9, 1});
+    // Depth-first binary tree 3) Post-order traversal : Left, Right, Root
+    //      null(6) ?
+    //    /        \
   //   3(2)      1(5)
-  //  /   \      /   \
+    //  /   \      /   \
   // 8(0) 5(1)  2(3)   9(4)
 
-  // Derek how to construct this tree ??
-  //      1(5)
-  //    /      \
+    // Derek how to construct this tree ??
+    //      1(5)
+    //    /      \
   //   3(2)      9(4)
-  //  /   \      /   \
+    //  /   \      /   \
   // 8(0) 5(1)  2(3)
-  int depth = 0;
-  int dataIdx = 0;
-  root = createDFPostOrderRec(nodes, maxDepthNo, depth, dataIdx);
+    int depth = 0;
+    int dataIdx = 0;
+    root = createDFPostOrderRec(nodes, maxDepthNo, depth, dataIdx);
+  } else if (impltID == IMPLT_DIV_N_CONQ) {
+    //      1(5)
+    //    /      \
+    //   5(1)      9(4)
+    //  /   \      /   \
+    // 8(0)  null  3(2)  2(3)
+    int startIdx = 0;
+    int endIdx = nodes.size() - 1;
+    root = createDFPostOrderRec(nodes, startIdx, endIdx);
+
+  } else {
+    printf("Not a supported implementation ID : %d\n", impltID);
+    exit(-1);
+  }
+
   return root;
 }
 
@@ -325,7 +492,26 @@ vector<int> traverseBTPreOrder(STreeNode *root) {
   // 2    9   1
 
   // Pre-order traversal : root, left, right:  {8, 5, 2, 9, 3, 1}
-  return vector<int>(0);
+  //   f(x) = {root} + f(x->left) + f(x->right)
+  vector<int> traversed;
+
+  // exception
+  if (root == nullptr)
+    return traversed;
+
+  // general
+  traversed.push_back(root->val);
+
+  vector<int> leftTraversed = traverseBTPreOrder(root->left);
+  // traversed + leftTraversed
+  traversed.insert(traversed.end(), leftTraversed.begin(), leftTraversed.end());
+
+  vector<int> rightTraversed = traverseBTPreOrder(root->right);
+  //+ rightTraversed
+  traversed.insert(traversed.end(), rightTraversed.begin(),
+                   rightTraversed.end());
+
+  return traversed;
 }
 
 vector<int> traverseBTInOrder(STreeNode *root) {
@@ -335,7 +521,25 @@ vector<int> traverseBTInOrder(STreeNode *root) {
   //  /   \    /
   // 2    9   1
   // In-order traversal : left, root, right:  {2, 5, 9, 8, 1, 3}
-  return vector<int>(0);
+  //   f(x) = f(x->left) +  {root} + f(x->right)
+  vector<int> traversed;
+  // exception
+  if (root == nullptr)
+    return traversed;
+
+  // general
+  vector<int> leftTraversed = traverseBTInOrder(root->left);
+  // traversed + leftTraversed
+  traversed.insert(traversed.end(), leftTraversed.begin(), leftTraversed.end());
+
+  traversed.push_back(root->val);
+
+  vector<int> rightTraversed = traverseBTInOrder(root->right);
+  //+ rightTraversed
+  traversed.insert(traversed.end(), rightTraversed.begin(),
+                   rightTraversed.end());
+
+  return traversed;
 }
 
 vector<int> traverseBTPostOrder(STreeNode *root) {
@@ -345,7 +549,25 @@ vector<int> traverseBTPostOrder(STreeNode *root) {
   //  /   \    /
   // 2    9   1
   // traversal : left, right, root:  {5, 2, 9, 3, 1, 8}
-  return vector<int>(0);
+  //   f(x) = f(x->left) +  f(x->right)+ {root}
+  vector<int> traversed;
+  // exception
+  if (root == nullptr)
+    return traversed;
+
+  // general
+  vector<int> leftTraversed = traverseBTPostOrder(root->left);
+  // traversed + leftTraversed
+  traversed.insert(traversed.end(), leftTraversed.begin(), leftTraversed.end());
+
+  vector<int> rightTraversed = traverseBTPostOrder(root->right);
+  //+ rightTraversed
+  traversed.insert(traversed.end(), rightTraversed.begin(),
+                   rightTraversed.end());
+
+  traversed.push_back(root->val);
+
+  return traversed;
 }
 
 void basic_binaryTree_traversal() {
@@ -368,6 +590,7 @@ void basic_binaryTree_traversal() {
   // Pre-order traversal : root, left, right:  {8, 5, 2, 9, 3, 1}
   // In-order traversal : left, root, right:   {2, 5, 9, 8, 1, 3}
   // Post-order traversal : left, right, root: {2, 9, 5, 1, 3, 8}
+  //
 
   vector<int> traversed;
 
@@ -424,7 +647,7 @@ void leetcode_balanced_tree() {
   //  / \   / \
   // 9   4 7   NULL
 
-  // TBD
+  // HW0906
 }
 
 class CRecurLeafBase {
@@ -438,7 +661,7 @@ public:
 class CRecurLeaf : public CRecurLeafBase {
 public:
   vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
-    // TBD
+    // HW0906
     return vector<vector<int>>(0);
   }
 };
@@ -486,7 +709,7 @@ void leetcode_recursive_leafs() {
   //---------------//
   STreeNode *tree = &(nodeData[0]);
 
-  // Q:  Given binary tree, print out the leave values at different layers
+  // Q:  Given binary tree, print out the leaf values at different layers
   //   Examples: {5, 6, 2} {4, 1} {9}, {7}
   CRecurLeaf solDerived;
   CRecurLeafBase *sol = &solDerived;
@@ -509,8 +732,8 @@ public:
 
 class CSolDistanceKInBT : public CSolDistanceKInBTBase {
 public:
-  virtual vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
-    // TBD
+  vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    // HW0906
     return vector<int>();
   }
 };
