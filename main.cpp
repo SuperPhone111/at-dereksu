@@ -9,7 +9,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 3;
+  int testID = 7;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -175,8 +175,7 @@ STreeNode *createDFPreOrderRec(vector<STreeNode> &nodes, int startIdx,
 
   int len = endIdx - (startIdx + 1) + 1;
 
-  root->left =
-      createDFPreOrderRec(nodes, startIdx + 1, startIdx + 1 + len / 2 - 1);
+  root->left = createDFPreOrderRec(nodes, startIdx + 1, startIdx + 1 + len / 2 - 1);
   root->right = createDFPreOrderRec(nodes, startIdx + 1 + len / 2, endIdx);
 
   return root;
@@ -613,6 +612,7 @@ void basic_binaryTree_traversal() {
   printf("\n");
 }
 
+
 void leetcode_balanced_tree() {
   vector<STreeNode> nodeData(6);
   nodeData[0].val = 7;
@@ -635,10 +635,10 @@ void leetcode_balanced_tree() {
   //         5   4
   //             /
   //            6
-  printNodes(nodeData);
-  //---------------//
   STreeNode *root = &(nodeData[0]);
   printf("root value is %d\n", root->val);
+  printNodes(nodeData);
+  //---------------//
   // Q:  Given an unbalanced binary tree, make it in-order balanced tree.
 
   //      6
@@ -648,6 +648,25 @@ void leetcode_balanced_tree() {
   // 9   4 7   NULL
 
   // HW0906
+  vector<int> traversed;
+  traversed = traverseBTInOrder(root);
+  // traversed = traverseBTPreOrder(root);
+  // traversed = traverseBTPostOrder(root);
+  for (auto &ir : traversed)
+    printf("%d ", ir);
+  printf("\n");
+
+  vector<STreeNode> nodes;
+  for (auto &ir : traversed) {
+    nodes.push_back(STreeNode(ir));
+  }
+  int startIdx = 0;
+  int endIdx = traversed.size() - 1;
+  root = createDFInOrderRec(nodes, startIdx, endIdx);
+  // root = createDFPreOrderRec(nodes, startIdx, endIdx);
+  // root = createDFPostOrderRec(nodes, startIdx, endIdx);
+  printf("root value is %d\n", root->val);
+  printNodes(nodes);
 }
 
 class CRecurLeafBase {
@@ -662,7 +681,19 @@ class CRecurLeaf : public CRecurLeafBase {
 public:
   vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
     // HW0906
-    return vector<vector<int>>(0);
+    if (!tree) {
+      return {};
+    }
+    vector<vector<int>> left = getLayeredLeaveValues(tree->left);
+    vector<vector<int>> right = getLayeredLeaveValues(tree->right);
+    vector<vector<int>> res = (left.size() >= right.size()) ? left : right;
+    vector<vector<int>> shortest_side = (left.size() >= right.size()) ? right : left;
+    for (int i = 0; i < shortest_side.size(); i++) {
+      res[i].insert(res[i].begin(), shortest_side[i].begin(), shortest_side[i].end());
+    }
+    res.push_back({tree->val});
+    return res;
+    // return vector<vector<int>>(0);
   }
 };
 
@@ -734,7 +765,46 @@ class CSolDistanceKInBT : public CSolDistanceKInBTBase {
 public:
   vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
     // HW0906
-    return vector<int>();
+    vector<int> nodesDistanceK;
+    find_distance_from_nodde_to_target(root, target->val, k, nodesDistanceK);
+    // return vector<int>();
+    return nodesDistanceK;
+  }
+  int find_distance_from_nodde_to_target(STreeNode *node, int target, int k, vector<int> &nodesDistanceK) {
+    if (node == nullptr) {
+      return -1;
+    }
+    if (node->val == target) {
+      add_subtree_node_at_distance_k(node, 0, k, nodesDistanceK);
+      return 1;
+    }
+    int leftDistance = find_distance_from_nodde_to_target(node->left, target, k, nodesDistanceK);
+    int rightDistance = find_distance_from_nodde_to_target(node->right, target, k, nodesDistanceK);
+
+    if (leftDistance == k || rightDistance == k) {
+      nodesDistanceK.push_back(node->val);
+    }
+    if (leftDistance != -1) {
+      add_subtree_node_at_distance_k(node->right, leftDistance + 1, k, nodesDistanceK);
+      return leftDistance + 1;
+    }
+    if (rightDistance != -1) {
+      add_subtree_node_at_distance_k(node->left, rightDistance + 1, k, nodesDistanceK);
+      return rightDistance + 1;
+    }
+
+    return -1;
+  }
+  void add_subtree_node_at_distance_k(STreeNode *node, int distance, int k, vector<int> &nodesDistanceK) {
+    if (node == nullptr) {
+      return;
+    }
+    if (distance == k) {
+      nodesDistanceK.push_back(node->val);
+    } else {
+      add_subtree_node_at_distance_k(node->left, distance + 1, k, nodesDistanceK);
+      add_subtree_node_at_distance_k(node->right, distance + 1, k, nodesDistanceK);
+    }
   }
 };
 
@@ -836,7 +906,13 @@ void leetcode_bt_distanceK() {
   nodeData[2].right = &(nodeData[6]);
   nodeData[5].val = 0;
   nodeData[6].val = 8;
-
+  //              3 (0)
+  //            /      \
+  //           5 (1)    1 (2)
+  //          / \         /  \
+  //       6(3)  2 (4)  null   2(6)
+  //            /   \
+  //           7 (5) 4 (8)
   printNodes(nodeData);
 
   root = &(nodeData[0]);
