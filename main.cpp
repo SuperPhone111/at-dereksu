@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include <vector>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
@@ -9,7 +10,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 7;
+  int testID = 2;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -41,6 +42,9 @@ int main(int argc, char **argv) {
     break;
   case 8: // recursive, backtracking, caching
     leetcode_fibonacci_seq();
+    break;
+  case 9:
+    leetcode_functionParsing();
     break;
   default:
     printf("not a supported testID %d\n", testID);
@@ -175,7 +179,8 @@ STreeNode *createDFPreOrderRec(vector<STreeNode> &nodes, int startIdx,
 
   int len = endIdx - (startIdx + 1) + 1;
 
-  root->left = createDFPreOrderRec(nodes, startIdx + 1, startIdx + 1 + len / 2 - 1);
+  root->left =
+      createDFPreOrderRec(nodes, startIdx + 1, startIdx + 1 + len / 2 - 1);
   root->right = createDFPreOrderRec(nodes, startIdx + 1 + len / 2, endIdx);
 
   return root;
@@ -612,7 +617,6 @@ void basic_binaryTree_traversal() {
   printf("\n");
 }
 
-
 void leetcode_balanced_tree() {
   vector<STreeNode> nodeData(6);
   nodeData[0].val = 7;
@@ -677,19 +681,114 @@ public:
   }
 };
 
+class CRecurLeftVK : public CRecurLeafBase {
+public:
+  vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
+    //             7
+    //            / \
+    //           9   1
+    //          / \    \
+    //         5   4   2
+    //             /
+    //            6
+    //
+    // time complexity : O(N logN )
+
+    vector<vector<int>> layers;
+    bool isLastNode = false;
+    while (!isLastNode) // logN
+    {
+      // general case
+      //  input/ condition :
+      //  output (return, reference) : return
+      //  variable among recursion: tree
+      vector<int> oneLayer = getOneLayerNodes(tree, isLastNode); // N
+      layers.push_back(oneLayer);
+
+      // ending contion (TBD)
+      // if(isLastNode) break;
+    }
+
+    return layers;
+  }
+
+private:
+  vector<int> getOneLayerNodes(STreeNode *root, bool &setNullPtrLater) {
+    vector<int> leafs;
+
+    // exception
+    if (root == nullptr)
+      return leafs;
+
+    if (root->left == nullptr && root->right == nullptr) {
+      leafs.push_back(root->val);
+      setNullPtrLater = true;
+      return leafs;
+    }
+
+    // general  - backtracking + get the feedback signal
+    bool setNullPtrNow = false;
+    vector<int> leftLeafs = getOneLayerNodes(root->left, setNullPtrNow);
+    if (setNullPtrNow)
+      root->left = nullptr;
+    leafs.insert(leafs.end(), leftLeafs.begin(), leftLeafs.end());
+
+    setNullPtrNow = false;
+    vector<int> rightLeafs = getOneLayerNodes(root->right, setNullPtrNow);
+    if (setNullPtrNow)
+      root->right = nullptr;
+    leafs.insert(leafs.end(), rightLeafs.begin(), rightLeafs.end());
+
+    return leafs;
+  }
+};
+
 class CRecurLeaf : public CRecurLeafBase {
 public:
   vector<vector<int>> getLayeredLeaveValues(STreeNode *tree) {
-    // HW0906
+    //             7
+    //            / \
+    //           9   1
+    //          / \    \
+    //         5   4   2
+    //             /
+    //            6
+    //
+
+    //     4
+    //    /
+    //   6
+    // left {{6}}, right {}
+    // res = left, shortest_side = right
+    // res[0] = {{6}, {}}
+    // {
+    //  {6, },
+    //  {4}
+    //
+    //
+    // HW0913:
+
+    // }
+    //
+    // Pre-order : root, left, right  => f(x) = {root} + f(x->left) +
+    // f(x->right)
+    //
+    // HW0913 : derive the recursive functions in polynomial expression: why
+    // this method is backtracing? Further improved?
+    //
+    // time complexity : O(NlogN)
+    //
     if (!tree) {
       return {};
     }
     vector<vector<int>> left = getLayeredLeaveValues(tree->left);
     vector<vector<int>> right = getLayeredLeaveValues(tree->right);
     vector<vector<int>> res = (left.size() >= right.size()) ? left : right;
-    vector<vector<int>> shortest_side = (left.size() >= right.size()) ? right : left;
+    vector<vector<int>> shortest_side =
+        (left.size() >= right.size()) ? right : left;
     for (int i = 0; i < shortest_side.size(); i++) {
-      res[i].insert(res[i].begin(), shortest_side[i].begin(), shortest_side[i].end());
+      res[i].insert(res[i].begin(), shortest_side[i].begin(),
+                    shortest_side[i].end());
     }
     res.push_back({tree->val});
     return res;
@@ -760,17 +859,26 @@ public:
     return vector<int>();
   }
 };
-
+//
+// Dynamic Programming : Top-down thinking => backtracking
+//
+// f(x) = {root} + f(x->left) + f(x->right) : decision tree (X)
+// f(x) = f(x-1) + f(x-2) : numerical operation => backtracking O(2^N) =>
+// memoization => O(N)
+//
 class CSolDistanceKInBT : public CSolDistanceKInBTBase {
 public:
   vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    // HW0913 : to be discussed (no action item)
     // HW0906
     vector<int> nodesDistanceK;
     find_distance_from_nodde_to_target(root, target->val, k, nodesDistanceK);
     // return vector<int>();
     return nodesDistanceK;
   }
-  int find_distance_from_nodde_to_target(STreeNode *node, int target, int k, vector<int> &nodesDistanceK) {
+  int find_distance_from_nodde_to_target(STreeNode *node, int target, int k,
+                                         vector<int> &nodesDistanceK) {
+    // exception / base
     if (node == nullptr) {
       return -1;
     }
@@ -778,32 +886,41 @@ public:
       add_subtree_node_at_distance_k(node, 0, k, nodesDistanceK);
       return 1;
     }
-    int leftDistance = find_distance_from_nodde_to_target(node->left, target, k, nodesDistanceK);
-    int rightDistance = find_distance_from_nodde_to_target(node->right, target, k, nodesDistanceK);
+
+    // general
+    int leftDistance = find_distance_from_nodde_to_target(node->left, target, k,
+                                                          nodesDistanceK);
+    int rightDistance = find_distance_from_nodde_to_target(node->right, target,
+                                                           k, nodesDistanceK);
 
     if (leftDistance == k || rightDistance == k) {
       nodesDistanceK.push_back(node->val);
     }
     if (leftDistance != -1) {
-      add_subtree_node_at_distance_k(node->right, leftDistance + 1, k, nodesDistanceK);
+      add_subtree_node_at_distance_k(node->right, leftDistance + 1, k,
+                                     nodesDistanceK);
       return leftDistance + 1;
     }
     if (rightDistance != -1) {
-      add_subtree_node_at_distance_k(node->left, rightDistance + 1, k, nodesDistanceK);
+      add_subtree_node_at_distance_k(node->left, rightDistance + 1, k,
+                                     nodesDistanceK);
       return rightDistance + 1;
     }
 
     return -1;
   }
-  void add_subtree_node_at_distance_k(STreeNode *node, int distance, int k, vector<int> &nodesDistanceK) {
+  void add_subtree_node_at_distance_k(STreeNode *node, int distance, int k,
+                                      vector<int> &nodesDistanceK) {
     if (node == nullptr) {
       return;
     }
     if (distance == k) {
       nodesDistanceK.push_back(node->val);
     } else {
-      add_subtree_node_at_distance_k(node->left, distance + 1, k, nodesDistanceK);
-      add_subtree_node_at_distance_k(node->right, distance + 1, k, nodesDistanceK);
+      add_subtree_node_at_distance_k(node->left, distance + 1, k,
+                                     nodesDistanceK);
+      add_subtree_node_at_distance_k(node->right, distance + 1, k,
+                                     nodesDistanceK);
     }
   }
 };
@@ -929,7 +1046,7 @@ void leetcode_bt_distanceK() {
 }
 
 int getFibSeq(int k) {
-
+  // HW0913
   return -1; // please modify it.
 }
 void leetcode_fibonacci_seq() {
@@ -944,10 +1061,45 @@ void leetcode_fibonacci_seq() {
   //  Q: Given k, derive X(k)
   //.    For example : X(0) = 0, when k=0
   //.                  X(2) = 1, when k=2
-  //                   X(4) = 3, when k=3
+  //                   X(4) = 3, when k=4
+  // NOTE: time complexity must be O(N)
 
   int k = 10;
   int Xk = getFibSeq(k);
 
   printf("X%d= %d\n", k, Xk);
+}
+
+class CFuncParsingBase {
+public:
+  virtual int solveFunctions(string paramStr) { return -1; }
+};
+
+class CFuncParsingDerive : public CFuncParsingBase {
+public:
+  int solveFunctions(string paramStr) {
+    // H@0913
+    return -1;
+  }
+};
+
+void leetcode_functionParsing() {
+  // 𝑓(𝑥) = 2𝑥 – 3
+  // 𝑔(𝑥, 𝑦) = 2𝑥 + 𝑦 – 7
+  // ℎ(𝑥, 𝑦, 𝑧) = 3𝑥 – 2𝑦 + 𝑧
+
+  //
+  //
+  // input string = {h f 5 g 3 4 3}, "space" is inserted between two consecutive
+  // parameters, ℎ(𝑓(5), 𝑔(3, 4), 3) = ℎ(7, 3, 3) = 18
+  //
+  //
+
+  CFuncParsingBase *sol = nullptr;
+  CFuncParsingDerive solDerived;
+
+  sol = &solDerived;
+  string inStr = "h f 5 g 3 4 3";
+  int res = sol->solveFunctions(inStr);
+  printf("%d (ans = 18)\n", res);
 }
