@@ -1080,7 +1080,8 @@ int fibSeqHelper(int k, unordered_map<int, int> &memorize) {
   if (memorize.find(k) != memorize.end()) {
     return memorize[k];
   } else {
-    return fibSeqHelper(k - 2, memorize) + fibSeqHelper(k - 2, memorize);
+    memorize[k] = fibSeqHelper(k - 1, memorize) + fibSeqHelper(k - 2, memorize);
+    return memorize[k];
   }
 }
 int getFibSeq(int k) {
