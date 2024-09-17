@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <unordered_map>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
 #include "includes.h"
@@ -10,7 +11,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 2;
+  int testID = 8;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -764,12 +765,26 @@ public:
     // {
     //  {6, },
     //  {4}
-    //
-    //
-    // HW0913:
-
     // }
     //
+    // HW0913:
+    //  post-order traversol: f(x) = f(x->left) + f(x->right) + f(root)
+    //     1
+    //    / \
+    //   2   3
+    //  / \
+    // 4   5
+    // STEP1:
+    // root = 1, recursive to left node 2 and right node 3
+    // STEP2:
+    // root = 2, left = [[4]], right = [[5]], res = [[4]], shortest_side = [[5]], push_back(2)
+    // res [[4, 5], [2]]
+    // STEP3:
+    // return to root = 1
+    // left = [[4, 5], [2]], right = [[3]]
+    // res = [[4, 5], [2]], shortest_side = [[3]], push_back(1)
+    // res = [[4, 5, 3], [2], [1]]
+    
     // Pre-order : root, left, right  => f(x) = {root} + f(x->left) +
     // f(x->right)
     //
@@ -870,13 +885,29 @@ class CSolDistanceKInBT : public CSolDistanceKInBTBase {
 public:
   vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
     // HW0913 : to be discussed (no action item)
+    // target = 3, k = 2
+    // ans = [2, 7, 8]
+    //             1
+    //            / \
+    //           2   3  <- target
+    //          / \    \
+    //         4   5    6
+    //                 / \
+    //                7   8
+    //
+    // dfs(1) 
+    // left = -1 -> dfs(2) -> left = dfs(4) return -1
+    //                -> right = dfs(5) return -1
+    // right = 1 -> dfs(3) return 1
+    // looking for left sub-tree of node 1 is distance one from node 3
+    // find all nodes that are distance one from node 1
     // HW0906
     vector<int> nodesDistanceK;
-    find_distance_from_nodde_to_target(root, target->val, k, nodesDistanceK);
+    find_distance_from_node_to_target(root, target->val, k, nodesDistanceK);
     // return vector<int>();
     return nodesDistanceK;
   }
-  int find_distance_from_nodde_to_target(STreeNode *node, int target, int k,
+  int find_distance_from_node_to_target(STreeNode *node, int target, int k,
                                          vector<int> &nodesDistanceK) {
     // exception / base
     if (node == nullptr) {
@@ -888,9 +919,9 @@ public:
     }
 
     // general
-    int leftDistance = find_distance_from_nodde_to_target(node->left, target, k,
+    int leftDistance = find_distance_from_node_to_target(node->left, target, k,
                                                           nodesDistanceK);
-    int rightDistance = find_distance_from_nodde_to_target(node->right, target,
+    int rightDistance = find_distance_from_node_to_target(node->right, target,
                                                            k, nodesDistanceK);
 
     if (leftDistance == k || rightDistance == k) {
@@ -1045,9 +1076,17 @@ void leetcode_bt_distanceK() {
   printf("] => ans: [7 4 1]\n");
 }
 
+int fibSeqHelper(int k, unordered_map<int, int> &memorize) {
+  if (memorize.find(k) != memorize.end()) {
+    return memorize[k];
+  } else {
+    return fibSeqHelper(k - 2, memorize) + fibSeqHelper(k - 2, memorize);
+  }
+}
 int getFibSeq(int k) {
   // HW0913
-  return -1; // please modify it.
+  unordered_map<int, int> memorize {{1, 0}, {2, 1}};
+  return fibSeqHelper(k, memorize); // please modify it.
 }
 void leetcode_fibonacci_seq() {
 
