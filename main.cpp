@@ -1,11 +1,11 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
 #include "includes.h"
@@ -13,7 +13,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 9;
+  int testID = 11;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -49,6 +49,12 @@ int main(int argc, char **argv) {
   case 9:
     leetcode_functionParsing();
     break;
+  case 10: // heapify
+    basic_heapify();
+    break;
+  case 11: // heap sort
+    basic_heap_sort();
+    break;
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
@@ -58,6 +64,7 @@ int main(int argc, char **argv) {
   //  top-down programming (backtracking)
 
   // class polymorphism
+  // unordered_map, map, unordered_set, set
 }
 
 struct STreeNode {
@@ -94,6 +101,110 @@ void printNodes(vector<STreeNode> &nodes) {
     printf("\n");
   }
   printf("\n");
+}
+
+void heapifyMaxHeap(vector<int> &vecData, int rootIdx) {
+  // exception
+
+  // general :
+  //  f(parent):
+  //  if parent is the max node => end
+  //  otherwise :  swap parent and max node => f(max node)
+
+  int maxIdx = rootIdx;
+  // compare w/ left
+  int childIdx = 2 * rootIdx + 1;
+  if (childIdx < vecData.size()) {
+    if (vecData[childIdx] > vecData[maxIdx]) {
+      maxIdx = childIdx;
+    }
+  }
+
+  // compare w/ right
+  childIdx = 2 * rootIdx + 2;
+  if (childIdx < vecData.size()) {
+    if (vecData[childIdx] > vecData[maxIdx]) {
+      maxIdx = childIdx;
+    }
+  }
+
+  if (maxIdx != rootIdx) {
+    //swap
+    int tmp = vecData[maxIdx];
+    vecData[maxIdx] = vecData[rootIdx];
+    vecData[rootIdx]= tmp;
+    
+    // recursive call
+    heapifyMaxHeap(vecData, maxIdx);
+  }
+}
+
+void buildMaxHeap(vector<int> &vecData) {
+  // d=0 =>1              5(0)
+  //                     /    \
+  // d=1 =>1+2        4(1)    1(2)
+  //                 /   \      /   \
+  // d=2 =>1+2+4   9(3)  2(4)  3(5)  null(6)
+  //
+  // d= 3 => 1+2+4+8
+
+  int depth = (int)log2((double)vecData.size());
+  int maxTestNodes = 0;
+
+  for (int i = 0; i < depth; i++) {
+    maxTestNodes += (1 << i);
+  }
+
+  for (int idx = maxTestNodes - 1; idx >= 0; idx--) {
+    heapifyMaxHeap(vecData, idx);
+  }
+}
+
+void basic_heapify() {
+  vector<int> vecData({5, 4, 1, 9, 2, 3});
+  //      5(0)
+  //      /    \
+  //    4(1)    1(2)
+  //   /   \      /   \
+  //  9(3)  2(4)  3(5)  null(6)
+  printf("== input data ==\n");
+  for (auto &ir : vecData)
+    printf("%d ", ir);
+  printf("\n");
+
+
+  
+  printf("== Heapify (max heap) ==\n");
+  //build max/min heapfied tree : O(NlogN)
+  //Hepaify a heapified tree : O(logN)
+  buildMaxHeap(vecData); 
+  for (auto &ir : vecData)
+    printf("%d ", ir);
+  printf("\n");
+
+  printf("== Re-Heapify (max heap) ==\n");
+  //log(N)
+  vecData.erase(vecData.begin());
+  vecData.insert(vecData.begin(), vecData.back());
+  vecData.pop_back();
+  heapifyMaxHeap(vecData, 0);
+  for (auto &ir : vecData)
+    printf("%d ", ir);
+  printf("\n");
+
+}
+
+void basic_heap_sort() {
+  vector<int> data({6, 2, 8, 1, 0, 7, 3});
+
+  //HW0919: heap sort / ascending sort
+
+  //build min heap: O(NlogN)
+  //N heapify : O(NlogN)
+  
+
+  
+  
 }
 
 STreeNode *createBFTree(vector<STreeNode> &nodes) {
@@ -779,14 +890,11 @@ public:
     // STEP1:
     // root = 1, recursive to left node 2 and right node 3
     // STEP2:
-    // root = 2, left = [[4]], right = [[5]], res = [[4]], shortest_side = [[5]], push_back(2)
-    // res [[4, 5], [2]]
-    // STEP3:
-    // return to root = 1
-    // left = [[4, 5], [2]], right = [[3]]
-    // res = [[4, 5], [2]], shortest_side = [[3]], push_back(1)
-    // res = [[4, 5, 3], [2], [1]]
-    
+    // root = 2, left = [[4]], right = [[5]], res = [[4]], shortest_side =
+    // [[5]], push_back(2) res [[4, 5], [2]] STEP3: return to root = 1 left =
+    // [[4, 5], [2]], right = [[3]] res = [[4, 5], [2]], shortest_side = [[3]],
+    // push_back(1) res = [[4, 5, 3], [2], [1]]
+
     // Pre-order : root, left, right  => f(x) = {root} + f(x->left) +
     // f(x->right)
     //
@@ -886,6 +994,7 @@ public:
 class CSolDistanceKInBT : public CSolDistanceKInBTBase {
 public:
   vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    // time complexity : O(logN K) (?)  To be discused.
     // HW0913 : to be discussed (no action item)
     // target = 3, k = 2
     // ans = [2, 7, 8]
@@ -897,7 +1006,7 @@ public:
     //                 / \
     //                7   8
     //
-    // dfs(1) 
+    // dfs(1)
     // left = -1 -> dfs(2) -> left = dfs(4) return -1
     //                -> right = dfs(5) return -1
     // right = 1 -> dfs(3) return 1
@@ -910,7 +1019,7 @@ public:
     return nodesDistanceK;
   }
   int find_distance_from_node_to_target(STreeNode *node, int target, int k,
-                                         vector<int> &nodesDistanceK) {
+                                        vector<int> &nodesDistanceK) {
     // exception / base
     if (node == nullptr) {
       return -1;
@@ -922,9 +1031,9 @@ public:
 
     // general
     int leftDistance = find_distance_from_node_to_target(node->left, target, k,
-                                                          nodesDistanceK);
+                                                         nodesDistanceK);
     int rightDistance = find_distance_from_node_to_target(node->right, target,
-                                                           k, nodesDistanceK);
+                                                          k, nodesDistanceK);
 
     if (leftDistance == k || rightDistance == k) {
       nodesDistanceK.push_back(node->val);
@@ -1085,10 +1194,24 @@ int fibSeqHelper(int k, unordered_map<int, int> &memorize) {
     memorize[k] = fibSeqHelper(k - 1, memorize) + fibSeqHelper(k - 2, memorize);
     return memorize[k];
   }
+#if 0
+  //exception | base
+  if(k== 0) return 0;
+  if(k== 1) return 1;
+
+  //general: X(n) = X(n-1) + X(n-2)
+  // without memo : O(2^N)
+  // w/ memo : O(N)
+  //
+  if (memorize.find(k) != memorize.end()){
+    return memorize[k];
+  }
+  return memorize[k] = fibSeqHelper(k - 1, memorize) + fibSeqHelper(k - 2, memorize);
+#endif
 }
 int getFibSeq(int k) {
-  // HW0913
-  unordered_map<int, int> memorize {{1, 0}, {2, 1}};
+  // HW0913 : backtracking + memoization
+  unordered_map<int, int> memorize{{1, 0}, {2, 1}};
   return fibSeqHelper(k, memorize); // please modify it.
 }
 void leetcode_fibonacci_seq() {
@@ -1125,18 +1248,13 @@ public:
     int idx = 0;
     return evaluate(tokens, idx);
   }
+
 private:
-  int f(int x) {
-    return 2 * x - 3;
-  }
-  
-  int g(int x, int y) {
-    return 2 * x + y - 7;
-  }
-  
-  int h(int x, int y, int z) {
-    return 3 * x - 2 * y + z;
-  }
+  int f(int x) { return 2 * x - 3; }
+
+  int g(int x, int y) { return 2 * x + y - 7; }
+
+  int h(int x, int y, int z) { return 3 * x - 2 * y + z; }
 
   vector<string> tokenize(const string &str) {
     vector<string> tokens;
@@ -1148,12 +1266,12 @@ private:
     return tokens;
   }
 
-  int evaluate(const vector<string>& tokens, int& idx) {
+  int evaluate(const vector<string> &tokens, int &idx) {
     string token = tokens[idx];
     idx++;
     if (token == "f") {
-       int x = evaluate(tokens, idx);
-       return f(x);
+      int x = evaluate(tokens, idx);
+      return f(x);
     } else if (token == "g") {
       int x = evaluate(tokens, idx);
       int y = evaluate(tokens, idx);
@@ -1162,7 +1280,7 @@ private:
       int x = evaluate(tokens, idx);
       int y = evaluate(tokens, idx);
       int z = evaluate(tokens, idx);
-      return h(x, y , z);
+      return h(x, y, z);
     } else {
       return stoi(token);
     }
@@ -1178,7 +1296,7 @@ void leetcode_functionParsing() {
   //
   // input string = {h f 5 g 3 4 3}, "space" is inserted between two consecutive
   // parameters, ℎ(𝑓(5), 𝑔(3, 4), 3) = ℎ(7, 3, 3) = 18
-  //
+  // y(x) = y( h, f, g) <== backtracking
   //
 
   CFuncParsingBase *sol = nullptr;

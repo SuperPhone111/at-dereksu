@@ -8,5 +8,7 @@ void leetcode_recursive_leafs();
 void leetcode_bt_distanceK();
 void leetcode_fibonacci_seq();
 void leetcode_functionParsing();
+void basic_heapify();
+void basic_heap_sort();
 
 // experienced-level course
