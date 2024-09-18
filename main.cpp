@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <iostream>
+#include <sstream>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
 #include "includes.h"
@@ -11,7 +13,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 8;
+  int testID = 9;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -1119,7 +1121,51 @@ class CFuncParsingDerive : public CFuncParsingBase {
 public:
   int solveFunctions(string paramStr) {
     // H@0913
-    return -1;
+    vector<string> tokens = tokenize(paramStr);
+    int idx = 0;
+    return evaluate(tokens, idx);
+  }
+private:
+  int f(int x) {
+    return 2 * x - 3;
+  }
+  
+  int g(int x, int y) {
+    return 2 * x + y - 7;
+  }
+  
+  int h(int x, int y, int z) {
+    return 3 * x - 2 * y + z;
+  }
+
+  vector<string> tokenize(const string &str) {
+    vector<string> tokens;
+    istringstream iss(str);
+    string token;
+    while (iss >> token) {
+      tokens.push_back(token);
+    }
+    return tokens;
+  }
+
+  int evaluate(const vector<string>& tokens, int& idx) {
+    string token = tokens[idx];
+    idx++;
+    if (token == "f") {
+       int x = evaluate(tokens, idx);
+       return f(x);
+    } else if (token == "g") {
+      int x = evaluate(tokens, idx);
+      int y = evaluate(tokens, idx);
+      return g(x, y);
+    } else if (token == "h") {
+      int x = evaluate(tokens, idx);
+      int y = evaluate(tokens, idx);
+      int z = evaluate(tokens, idx);
+      return h(x, y , z);
+    } else {
+      return stoi(token);
+    }
   }
 };
 
