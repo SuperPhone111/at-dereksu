@@ -111,6 +111,7 @@ void heapifyMaxHeap(vector<int> &vecData, int rootIdx) {
   //  if parent is the max node => end
   //  otherwise :  swap parent and max node => f(max node)
 
+  // shift down
   int maxIdx = rootIdx;
   // compare w/ left
   int childIdx = 2 * rootIdx + 1;
@@ -129,11 +130,11 @@ void heapifyMaxHeap(vector<int> &vecData, int rootIdx) {
   }
 
   if (maxIdx != rootIdx) {
-    //swap
+    // swap
     int tmp = vecData[maxIdx];
     vecData[maxIdx] = vecData[rootIdx];
-    vecData[rootIdx]= tmp;
-    
+    vecData[rootIdx] = tmp;
+
     // recursive call
     heapifyMaxHeap(vecData, maxIdx);
   }
@@ -148,14 +149,17 @@ void buildMaxHeap(vector<int> &vecData) {
   //
   // d= 3 => 1+2+4+8
 
-  int depth = (int)log2((double)vecData.size());
+  // int depth = (int)log2((double)vecData.size());
   int maxTestNodes = 0;
 
-  for (int i = 0; i < depth; i++) {
-    maxTestNodes += (1 << i);
-  }
+  // for (int i = 0; i < depth; i++) {
+  //   maxTestNodes += (1 << i);
+  // }
+  maxTestNodes = (vecData.size() - 1 - 1) / 2;
+  // printf("maxTestNodes = %d\n", maxTestNodes);
 
-  for (int idx = maxTestNodes - 1; idx >= 0; idx--) {
+  // for (int idx = maxTestNodes - 1; idx >= 0; idx--) {
+  for (int idx = maxTestNodes; idx >= 0; idx--) {
     heapifyMaxHeap(vecData, idx);
   }
 }
@@ -172,18 +176,16 @@ void basic_heapify() {
     printf("%d ", ir);
   printf("\n");
 
-
-  
   printf("== Heapify (max heap) ==\n");
-  //build max/min heapfied tree : O(NlogN)
-  //Hepaify a heapified tree : O(logN)
-  buildMaxHeap(vecData); 
+  // build max/min heapfied tree : O(NlogN)
+  // Hepaify a heapified tree : O(logN)
+  buildMaxHeap(vecData);
   for (auto &ir : vecData)
     printf("%d ", ir);
   printf("\n");
 
   printf("== Re-Heapify (max heap) ==\n");
-  //log(N)
+  // log(N)
   vecData.erase(vecData.begin());
   vecData.insert(vecData.begin(), vecData.back());
   vecData.pop_back();
@@ -191,20 +193,42 @@ void basic_heapify() {
   for (auto &ir : vecData)
     printf("%d ", ir);
   printf("\n");
-
 }
 
 void basic_heap_sort() {
   vector<int> data({6, 2, 8, 1, 0, 7, 3});
 
-  //HW0919: heap sort / ascending sort
+  // HW0919: heap sort / ascending sort
 
-  //build min heap: O(NlogN)
-  //N heapify : O(NlogN)
-  
+  // build min heap: O(NlogN)
+  // N heapify : O(NlogN)
 
-  
-  
+  buildMaxHeap(data);
+
+  printf("== Max Heap built ==\n");
+  for (auto &val : data)
+      printf("%d ", val);
+  printf("\n");
+
+
+  for (int i = data.size() - 1; i > 0; --i) {
+      swap(data[0], data[i]);
+
+      vector<int> subVec(data.begin(), data.begin() + i);
+      heapifyMaxHeap(subVec, 0);
+
+      copy(subVec.begin(), subVec.end(), data.begin());
+
+      printf("== After re-heapify (i = %d) ==\n", i);
+      for (auto &val : data)
+          printf("%d ", val);
+      printf("\n");
+  }
+
+  printf("== Sorted data (Ascending) ==\n");
+  for (auto &val : data)
+      printf("%d ", val);
+  printf("\n");
 }
 
 STreeNode *createBFTree(vector<STreeNode> &nodes) {
@@ -1067,6 +1091,87 @@ public:
   }
 };
 
+class CSolDistanceKVK : public CSolDistanceKInBTBase {
+public:
+  vector<int> distanceK(STreeNode *root, STreeNode *target, int k) {
+    vector<int> kVals;
+
+    // traverse to target and backtracking all parent nodes
+    //  O(logN)
+    int distance = 0;
+    vector<STreeNode *> nodeList = traverseToTarget(root, target, distance);
+
+    // traverse from target and all rotts
+    int numRoots = (k + 1 < nodeList.size()) ? (k + 1) : nodeList.size();
+    // O(logN * k)
+    for (int i = 0; i < numRoots; i++, k--) {
+      STreeNode *excludeNode = (i == 0) ? nullptr : nodeList[i - 1];
+      vector<int> vals = traverseChildsWithK(nodeList[i], excludeNode, k);
+      kVals.insert(kVals.end(), vals.begin(), vals.end());
+    }
+
+    return kVals;
+  }
+
+private:
+  vector<int> traverseChildsWithK(STreeNode *root, STreeNode *excludeNode,
+                                  int distance) {
+    vector<int> traversed;
+    // exception
+    if (root == nullptr || root == excludeNode) {
+      return traversed;
+    }
+
+    if (distance == 0) {
+      traversed.push_back(root->val);
+      return traversed;
+    }
+
+    // general
+    vector<int> leftList =
+        traverseChildsWithK(root->left, excludeNode, distance - 1);
+    traversed.insert(traversed.end(), leftList.begin(), leftList.end());
+
+    vector<int> rightList =
+        traverseChildsWithK(root->right, excludeNode, distance - 1);
+    traversed.insert(traversed.end(), rightList.begin(), rightList.end());
+
+    return traversed;
+  }
+
+  vector<STreeNode *> traverseToTarget(STreeNode *root, STreeNode *target,
+                                       int &distance) {
+    vector<STreeNode *> traversed;
+    // exception case
+    if (root == nullptr) {
+      return traversed;
+    }
+
+    if (root == target) {
+      traversed.push_back(root);
+      distance++;
+      return traversed;
+    }
+
+    // general case
+    traversed = traverseToTarget(root->left, target, distance);
+    if (distance > 0) {
+      traversed.push_back(root);
+      distance++;
+      return traversed;
+    }
+
+    traversed = traverseToTarget(root->right, target, distance);
+    if (distance > 0) {
+      traversed.push_back(root);
+      distance++;
+      return traversed;
+    }
+
+    return traversed;
+  }
+};
+
 void leetcode_bt_distanceK() {
 
   CSolDistanceKInBT objDerived;
@@ -1238,6 +1343,89 @@ void leetcode_fibonacci_seq() {
 class CFuncParsingBase {
 public:
   virtual int solveFunctions(string paramStr) { return -1; }
+};
+
+class CFuncBase {
+public:
+  virtual int getNum() { return -1; }
+  virtual int getRes(vector<int> in) { return -1; }
+};
+
+class CFuncF : public CFuncBase {
+  int getNum() { return 1; }
+  int getRes(vector<int> in) { return (2 * in[0] - 3); }
+};
+
+// 𝑔(𝑥, 𝑦) = 2𝑥 + 𝑦 – 7
+class CFuncG : public CFuncBase {
+  int getNum() { return 2; }
+  int getRes(vector<int> in) { return (2 * in[0] + in[1] - 7); }
+};
+
+// ℎ(𝑥, 𝑦, 𝑧) = 3𝑥 – 2𝑦 + 𝑧
+class CFuncH : public CFuncBase {
+  int getNum() { return 3; }
+  int getRes(vector<int> in) { return (3 * in[0] - 2 * in[1] + in[2]); }
+};
+
+class CFuncParsingVK : CFuncParsingBase {
+public:
+  int solveFunctions(string paramStr) {
+    // input string -> vector of parameters
+    vector<string> paramList;
+    string oneStr;
+    for (auto &ir : paramStr) {
+      if (ir == ' ') {
+        paramList.push_back(oneStr);
+        oneStr.clear();
+      } else {
+        oneStr.push_back(ir);
+      }
+    }
+    paramList.push_back(oneStr);
+    return recSolveFunc(paramList);
+  }
+
+private:
+  int recSolveFunc(vector<string> &paramList) {
+    // int res = -1;
+    // exception
+    if (isdigit(paramList.front().back())) {
+      int oneParam = stoi(paramList.front());
+      paramList.erase(paramList.begin());
+      return oneParam;
+    }
+
+    // general
+    char funcChar = paramList.front().front();
+    CFuncBase *func = nullptr;
+
+    switch (funcChar) {
+    case 'f':
+      func = &funcF;
+      break;
+    case 'g':
+      func = &funcG;
+      break;
+    case 'h':
+      func = &funcH;
+      break;
+    default:
+      printf("not a defined implementation: %d\n", (int)funcChar);
+      exit(-1);
+    }
+    paramList.erase(paramList.begin());
+    vector<int> funcParams;
+    for (int i = 0; i < func->getNum(); i++)
+      funcParams.push_back(recSolveFunc(paramList));
+
+    return func->getRes(funcParams);
+  }
+
+private:
+  CFuncF funcF;
+  CFuncG funcG;
+  CFuncH funcH;
 };
 
 class CFuncParsingDerive : public CFuncParsingBase {
