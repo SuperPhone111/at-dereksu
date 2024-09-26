@@ -55,16 +55,41 @@ int main(int argc, char **argv) {
   case 11: // heap sort
     basic_heap_sort();
     break;
+  case 12:
+    leetcode_bt_findKthMin();
+    break;
+  case 14: // pivot partiion
+    basic_pivot_partitioning();
+    break;
+  case 15: // quick Sort
+    basic_quickSort();
+    break;
+  case 16:
+    leetcode_merge_sorted_lists();
+    break;
+  case 17:
+    basic_mergeSort();
+    break;
+    // digit processing
+  case 18:
+    leetcode_revert_integer();
+    break;
+  case 19:
+    leetcode_even_odd_diff();
+    break;
+  case 20:
+    leetcode_bits_resersal();
+    break;
+  case 21:
+    leetcode_print_decimal_in_binary();
+    break;
+
+  // unordered_map, map, unordered_set, set
+  // recursive example and principles
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
   }
-
-  // recursive
-  //  top-down programming (backtracking)
-
-  // class polymorphism
-  // unordered_map, map, unordered_set, set
 }
 
 struct STreeNode {
@@ -207,27 +232,26 @@ void basic_heap_sort() {
 
   printf("== Max Heap built ==\n");
   for (auto &val : data)
-      printf("%d ", val);
+    printf("%d ", val);
   printf("\n");
 
-
   for (int i = data.size() - 1; i > 0; --i) {
-      swap(data[0], data[i]);
+    swap(data[0], data[i]);
 
-      vector<int> subVec(data.begin(), data.begin() + i);
-      heapifyMaxHeap(subVec, 0);
+    vector<int> subVec(data.begin(), data.begin() + i);
+    heapifyMaxHeap(subVec, 0);
 
-      copy(subVec.begin(), subVec.end(), data.begin());
+    copy(subVec.begin(), subVec.end(), data.begin());
 
-      printf("== After re-heapify (i = %d) ==\n", i);
-      for (auto &val : data)
-          printf("%d ", val);
-      printf("\n");
+    printf("== After re-heapify (i = %d) ==\n", i);
+    for (auto &val : data)
+      printf("%d ", val);
+    printf("\n");
   }
 
   printf("== Sorted data (Ascending) ==\n");
   for (auto &val : data)
-      printf("%d ", val);
+    printf("%d ", val);
   printf("\n");
 }
 
@@ -1495,3 +1519,82 @@ void leetcode_functionParsing() {
   int res = sol->solveFunctions(inStr);
   printf("%d (ans = 18)\n", res);
 }
+
+int funcFindKthMinFromArray(vector<int> vecData, int k) { return -1; }
+void leetcode_bt_findKthMin() {
+  // Given any array/vector, find the K-min number.
+  // Example: array = {5, 4, 1, 9, 2, 3}, if K=3, the 3rd min number is 3.
+  vector<int> vecData({5, 4, 1, 9, 2, 3});
+  printf("input= { ");
+  for (auto &ir : vecData) {
+    printf("%d ", ir);
+  }
+  printf("}\n");
+
+  int k = 3;
+  int kthMin = funcFindKthMinFromArray(vecData, k);
+  printf("%d-min is %d\n\n", k, kthMin);
+}
+
+void pivotPartition(vector<int> &inVec) {}
+
+void basic_pivot_partitioning() {
+  // {smaller than pivot} {pivot} {greater than pivot}
+
+  vector<int> vecData({5, 2, 6, 1, 8, 3, 6, 9, 4});
+
+  printf("before : ");
+  for (auto &ir : vecData) {
+    printf("%d ", ir);
+  }
+  printf("\n");
+
+  // function
+  pivotPartition(vecData);
+
+  printf("after : ");
+  for (auto &ir : vecData) {
+    printf("%d ", ir);
+  }
+  printf("\n");
+}
+
+vector<int> mergeTwoSortedLists(vector<int> a, vector<int> b) {
+  return vector<int>(0);
+}
+
+void leetcode_merge_sorted_lists() {
+  vector<int> a({2, 10, 20, 40}); // sorted
+  vector<int> b({1, 25, 30});     // sorted
+
+  vector<int> c = mergeTwoSortedLists(a, b);
+
+  for (auto &ir : c)
+    printf("%d ", ir);
+  printf("\n");
+}
+
+void basic_mergeSort() {}
+int revertInteger(int num) { return -1; }
+void leetcode_revert_integer() {
+  int num = 420;
+  num = revertInteger(num);
+  printf("reverted number = %d (ans : 54321)\n", num);
+}
+
+int funcEvenOddDiff(int num) { return -1; }
+void leetcode_even_odd_diff() {
+  int X = 263541;
+  int diff = funcEvenOddDiff(X);
+  printf("diff =%d (ans : 3)\n", diff);
+
+  X = 131;
+  diff = funcEvenOddDiff(X);
+  printf("diff =%d (ans : 1)\n", diff);
+}
+
+void leetcode_bits_resersal() {}
+
+void leetcode_print_decimal_in_binary() {}
+
+void basic_quickSort() {}
