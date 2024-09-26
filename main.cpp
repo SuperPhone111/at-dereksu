@@ -84,8 +84,8 @@ int main(int argc, char **argv) {
     leetcode_print_decimal_in_binary();
     break;
 
-  // unordered_map, map, unordered_set, set
-  // recursive example and principles
+  // unordered_map, map, unordered_set, set (SKIPPED)
+  // recursive example and principles (1-2 example)
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
@@ -220,6 +220,8 @@ void basic_heapify() {
   printf("\n");
 }
 
+#define HEAP_SORT_AVOID_COPY 0
+
 void basic_heap_sort() {
   vector<int> data({6, 2, 8, 1, 0, 7, 3});
 
@@ -235,6 +237,24 @@ void basic_heap_sort() {
     printf("%d ", val);
   printf("\n");
 
+#if HEAP_SORT_AVOID_COPY
+  vector<int> res;
+  while (1) {
+    swap(data.front(), data.back());
+
+    res.push_back(data.back());
+    data.pop_back();
+
+    if (data.size() == 1) {
+      res.push_back(data.front());
+      break;
+    }
+    heapifyMaxHeap(data, 0);
+  }
+
+  data = res;
+#else
+
   for (int i = data.size() - 1; i > 0; --i) {
     swap(data[0], data[i]);
 
@@ -248,6 +268,7 @@ void basic_heap_sort() {
       printf("%d ", val);
     printf("\n");
   }
+#endif
 
   printf("== Sorted data (Ascending) ==\n");
   for (auto &val : data)
@@ -1520,7 +1541,11 @@ void leetcode_functionParsing() {
   printf("%d (ans = 18)\n", res);
 }
 
-int funcFindKthMinFromArray(vector<int> vecData, int k) { return -1; }
+int funcFindKthMinFromArray(vector<int> vecData, int k) {
+  // HW0926
+  return -1;
+}
+
 void leetcode_bt_findKthMin() {
   // Given any array/vector, find the K-min number.
   // Example: array = {5, 4, 1, 9, 2, 3}, if K=3, the 3rd min number is 3.
@@ -1536,7 +1561,51 @@ void leetcode_bt_findKthMin() {
   printf("%d-min is %d\n\n", k, kthMin);
 }
 
-void pivotPartition(vector<int> &inVec) {}
+void pivotPartition(vector<int> &in) {
+  // {5, 2, 6, 1, 8, 3, 6, 9, 4}
+  //                          ^^
+  //  ^ -->             <--^
+  // {smaller than pivot} {pivot} {greater than pivot}
+  int startIdx = 0;
+  int endIdx = in.size() - 1;
+
+  int pivotIdx = endIdx;
+  int forwardIdx = startIdx, backwardIdx = endIdx - 1;
+
+  while (forwardIdx <= backwardIdx) 
+  {
+    // general
+    //  compare in[forwardIdx]
+    bool isForwarding = false, isBackwarding = false;
+    if (in[forwardIdx] < in[pivotIdx]) {
+      forwardIdx++;
+      isForwarding = true;
+    }
+
+    // compare in[backwardIdx]
+    if (in[backwardIdx] >= in[pivotIdx]) {
+      backwardIdx--;
+      isBackwarding = true;
+    }
+
+    // if both forward and backward operation got stuck,
+    //    swap in[forward], in[backward] -> continue
+    if (!isForwarding && !isBackwarding) {
+      // swap
+      int tmp = in[forwardIdx];
+      in[forwardIdx] = in[backwardIdx];
+      in[backwardIdx] = tmp;
+
+      forwardIdx++;
+      backwardIdx--;
+    }
+  }
+
+  int tmp = in[forwardIdx];
+  in[forwardIdx] = in[pivotIdx];
+  in[pivotIdx] = tmp;
+  
+}
 
 void basic_pivot_partitioning() {
   // {smaller than pivot} {pivot} {greater than pivot}
@@ -1560,6 +1629,7 @@ void basic_pivot_partitioning() {
 }
 
 vector<int> mergeTwoSortedLists(vector<int> a, vector<int> b) {
+  //HW0927 (optional)
   return vector<int>(0);
 }
 
@@ -1597,4 +1667,33 @@ void leetcode_bits_resersal() {}
 
 void leetcode_print_decimal_in_binary() {}
 
-void basic_quickSort() {}
+void quickSort(vector<int>& in, int startIdx, int endIdx){
+  //HW0926
+  
+  //exception
+  // considering your size (startIdx, endIdx) relationship
+  
+  //general
+  // midPos = pivot partition
+  // startIdx ~ midPos-1
+  // midPos +1 -- endIdx
+  
+}
+
+void basic_quickSort() {
+  vector<int> in({1, 6, 2, 9, 3, 7, 2, 0, 2, 8, 5});
+
+  printf("== unsorted ==");
+  for(auto& ir : in) printf("%d ", ir);
+  printf("\n");
+
+  int startIdx = 0;
+  int endIdx = in.size()-1;
+  quickSort(in, startIdx, endIdx);
+
+  printf("== sorted ==");
+  for(auto& ir : in) printf("%d ", ir);
+  printf("\n");
+
+  
+}
