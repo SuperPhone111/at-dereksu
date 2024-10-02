@@ -13,7 +13,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 15;
+  int testID = 12;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -1541,9 +1541,59 @@ void leetcode_functionParsing() {
   printf("%d (ans = 18)\n", res);
 }
 
+void siftDown(int currentIdx, int endIdx, vector<int> &heap) {
+  int childOneIdx = currentIdx * 2 + 1;
+  while (childOneIdx <= endIdx) {
+    int childTwoIdx = currentIdx * 2 + 2 <= endIdx ? currentIdx * 2 + 2 : -1;
+    int idxToSwap;
+    if (childTwoIdx != -1 && heap[childTwoIdx] < heap[childOneIdx]) {
+      idxToSwap = childTwoIdx;
+    } else {
+      idxToSwap = childOneIdx;
+    }
+    if (heap[idxToSwap] < heap[currentIdx]) {
+      swap(heap[idxToSwap], heap[currentIdx]);
+      currentIdx = idxToSwap;
+      childOneIdx = currentIdx * 2 + 1;
+    } else {
+      return;
+    }
+  }
+}
+
+vector<int> buildMinHeap(vector<int> &vector) {
+  // Write your code here.
+  int firstParentIdx = (vector.size() - 2) / 2;
+  for (int i = firstParentIdx; i >= 0; i--) {
+    siftDown(i, vector.size() - 1, vector);
+    // for (auto n : vector) {
+    //   cout << n << " " ;
+    // }
+    // cout << endl;
+  }
+  // cout << "sorted: ";
+  // for (auto n : vector) {
+  //   cout << n << " " ;
+  // }
+  return vector;
+}
+
 int funcFindKthMinFromArray(vector<int> vecData, int k) {
   // HW0926
-  return -1;
+  buildMinHeap(vecData);
+  for (int endIdx = vecData.size() - 1; endIdx >= 0; endIdx--) {
+    swap(vecData[0], vecData[endIdx]);
+    siftDown(0, endIdx - 1, vecData);
+  }
+  cout << "sorted: ";
+  for (auto n : vecData) {
+    cout << n << " ";
+  }
+  cout << endl;
+  for (int i = k; i > 1; i--) {
+    vecData.pop_back();
+  }
+  return vecData.back();
 }
 
 void leetcode_bt_findKthMin() {
@@ -1692,7 +1742,8 @@ void quickSort(vector<int> &in, int startIdx, int endIdx) {
     }
   }
   swap(in[rightIdx], in[pivotIdx]);
-  bool leftSubarrayIsSmaller = rightIdx - 1 - startIdx < endIdx - (rightIdx + 1);
+  bool leftSubarrayIsSmaller =
+      rightIdx - 1 - startIdx < endIdx - (rightIdx + 1);
   if (leftSubarrayIsSmaller) {
     // cout << "[left first]" << endl;
     // cout << "startIdx=" << startIdx << ",endIdx=" << endIdx  << endl;
