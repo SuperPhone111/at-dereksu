@@ -83,7 +83,6 @@ int main(int argc, char **argv) {
   case 21:
     leetcode_print_decimal_in_binary();
     break;
-
   // unordered_map, map, unordered_set, set (SKIPPED)
   // recursive example and principles (1-2 example)
   default:
@@ -1599,6 +1598,11 @@ int funcFindKthMinFromArray(vector<int> vecData, int k) {
 void leetcode_bt_findKthMin() {
   // Given any array/vector, find the K-min number.
   // Example: array = {5, 4, 1, 9, 2, 3}, if K=3, the 3rd min number is 3.
+  // d=0 =>1              5(0)
+  //                     /    \
+  // d=1 =>1+2        4(1)    1(2)
+  //                 /   \      /   \
+  // d=2 =>1+2+4   9(3)  2(4)  3(5)  null(6)
   vector<int> vecData({5, 4, 1, 9, 2, 3});
   printf("input= { ");
   for (auto &ir : vecData) {
@@ -1611,13 +1615,13 @@ void leetcode_bt_findKthMin() {
   printf("%d-min is %d\n\n", k, kthMin);
 }
 
-void pivotPartition(vector<int> &in) {
+int pivotPartition(vector<int> &in, int startIdx, int endIdx) {
   // {5, 2, 6, 1, 8, 3, 6, 9, 4}
   //                          ^^
   //  ^ -->             <--^
   // {smaller than pivot} {pivot} {greater than pivot}
-  int startIdx = 0;
-  int endIdx = in.size() - 1;
+  // int startIdx = 0;
+  // int endIdx = in.size() - 1;
 
   int pivotIdx = endIdx;
   int forwardIdx = startIdx, backwardIdx = endIdx - 1;
@@ -1653,6 +1657,8 @@ void pivotPartition(vector<int> &in) {
   int tmp = in[forwardIdx];
   in[forwardIdx] = in[pivotIdx];
   in[pivotIdx] = tmp;
+
+  return forwardIdx;
 }
 
 void basic_pivot_partitioning() {
@@ -1667,7 +1673,7 @@ void basic_pivot_partitioning() {
   printf("\n");
 
   // function
-  pivotPartition(vecData);
+  pivotPartition(vecData, 0, vecData.size() - 1);
 
   printf("after : ");
   for (auto &ir : vecData) {
@@ -1676,9 +1682,64 @@ void basic_pivot_partitioning() {
   printf("\n");
 }
 
+#define MERGETWOLIST_ALTER 1
+
 vector<int> mergeTwoSortedLists(vector<int> a, vector<int> b) {
-  // HW0927 (optional)
-  return vector<int>(0);
+  // METHOD 0: bubble sort (X)
+  // METHOD 1 : std:sort() => O(NlogN)
+  // NOTE: requirement : reduced the complexity to O(N)
+  vector<int> merged;
+
+#if MERGETWOLIST_ALTER
+  // backtracking
+  while (!a.empty() || !b.empty()) // Step 0: infinite loop //Step 3: satisfied
+                                   // condition = ~(encoding condition)
+  {
+    // Step 1: general condition & iteration
+    // if(!a.empty() && !b.empty()) // compare a.front() , b.front()
+    // else if (a.empty) => take b
+    // else (b.empty) -=> take a
+    vector<int> &selected = (!a.empty() && !b.empty())
+                                ? (a.front() < b.front() ? a : b)
+                                : (a.empty() ? b : a);
+
+    // get the value, pop out the front, either a or b
+    merged.push_back(selected.front());
+    selected.erase(selected.begin());
+
+    // Step 2: ending condition
+    // if(a.empty() && b.empty()) break;
+  }
+
+#else
+  int merged_size = a.size() + b.size();
+
+  int leftIdx = 0, rightIdx = 0;
+  for (int i = 0; i < merged_size; i++) {
+    ///// both a, b exist
+    if (leftIdx < a.size() && rightIdx < b.size()) {
+      if (a[leftIdx] < b[rightIdx]) {
+        merged.push_back(a[leftIdx]);
+        leftIdx++;
+      } else {
+        merged.push_back(b[rightIdx]);
+        rightIdx++;
+      }
+    }
+    ///// otherwise, if a exist => take a, other take b
+    else if (leftIdx < a.size()) // take a
+    {
+      merged.push_back(a[leftIdx]);
+      leftIdx++;
+    } else // take b
+    {
+      merged.push_back(b[rightIdx]);
+      rightIdx++;
+    }
+  }
+#endif
+
+  return merged;
 }
 
 void leetcode_merge_sorted_lists() {
@@ -1692,7 +1753,30 @@ void leetcode_merge_sorted_lists() {
   printf("\n");
 }
 
-void basic_mergeSort() {}
+vector<int> mergeSort(vector<int> in, int startIdx, int endIdx) {
+  // HW1003
+  vector<int> merged;
+  // excpetion / base
+
+  // general
+  //  left <-- mergesort()
+  //  right <-- mergesort()
+
+  // merged = mergeTwoSOrtedLists(left, right)
+
+  return merged;
+}
+
+void basic_mergeSort() {
+  vector<int> in({3, 1, 6, 2, 9, 7, 4, 8});
+
+  // f(X0, X1) = f(f(X00, X01), f(X10, X11) )
+  int startIdx = 0;
+
+  int endIdx = in.size() - 1;
+  vector<int> merged = mergeSort(in, startIdx, endIdx);
+}
+
 int revertInteger(int num) { return -1; }
 void leetcode_revert_integer() {
   int num = 420;
@@ -1715,7 +1799,41 @@ void leetcode_bits_resersal() {}
 
 void leetcode_print_decimal_in_binary() {}
 
+#define QUICKSORT_ALTER 1
+
 void quickSort(vector<int> &in, int startIdx, int endIdx) {
+
+#if QUICKSORT_ALTER
+  // backtracking + memoization (optional)
+  //    {1, 2, 1, 1, 6, 9, 2, 1, 3, 1}
+  //  memoization:
+  //    - (unordered_map): key : string combeined with numbers, value = sorted
+  //    results
+
+  /*
+  stringstream newStr;
+  int a= 5;
+  string str = "John";
+  newStr << a << str;
+  string tmp = newStr.str();
+  */
+  // f(X) = f(Xsmaller) + {pivot} + f(Xgreater)
+
+  // exception
+  if (startIdx >= endIdx)
+    return;
+
+  // general
+  // partition in by pivot
+  int pivotIdx = pivotPartition(in, startIdx, endIdx);
+
+  // smaller
+  quickSort(in, startIdx, pivotIdx - 1);
+
+  // greater
+  quickSort(in, pivotIdx + 1, endIdx);
+
+#else
   // HW0926
 
   // exception
@@ -1757,6 +1875,7 @@ void quickSort(vector<int> &in, int startIdx, int endIdx) {
     quickSort(in, rightIdx + 1, endIdx);
     quickSort(in, startIdx, rightIdx - 1);
   }
+#endif
 }
 
 void basic_quickSort() {
