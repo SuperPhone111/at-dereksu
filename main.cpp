@@ -1757,13 +1757,19 @@ vector<int> mergeSort(vector<int> in, int startIdx, int endIdx) {
   // HW1003
   vector<int> merged;
   // excpetion / base
+  if (startIdx >= endIdx) {
+    return {in[startIdx]};
+  }
 
   // general
   //  left <-- mergesort()
   //  right <-- mergesort()
+  int middleIdx = (startIdx + endIdx) / 2;
+  vector<int> leftHalf = mergeSort(in, startIdx, middleIdx);
+  vector<int> rightHalf = mergeSort(in, middleIdx+1, endIdx);
 
   // merged = mergeTwoSOrtedLists(left, right)
-
+  merged = mergeTwoSortedLists(leftHalf, rightHalf);
   return merged;
 }
 
@@ -1775,6 +1781,9 @@ void basic_mergeSort() {
 
   int endIdx = in.size() - 1;
   vector<int> merged = mergeSort(in, startIdx, endIdx);
+  for (auto &ir : merged)
+    printf("%d ", ir);
+  printf("\n");
 }
 
 int revertInteger(int num) { return -1; }
