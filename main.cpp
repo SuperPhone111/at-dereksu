@@ -13,7 +13,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 12;
+  int testID = 22;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -71,24 +71,36 @@ int main(int argc, char **argv) {
     basic_mergeSort();
     break;
     // digit processing
-  case 18:
+  case 18: // decimal
     leetcode_revert_integer();
     break;
   case 19:
     leetcode_even_odd_diff();
     break;
-  case 20:
+  case 20: // binary
     leetcode_bits_resersal();
     break;
-  case 21:
+  case 22:
+    leetcode_check_power_of_two();
+    break;
+  case 23:
     leetcode_print_decimal_in_binary();
     break;
-  // unordered_map, map, unordered_set, set (SKIPPED)
-  // recursive example and principles (1-2 example)
+    // unordered_map, map, unordered_set, set (SKIPPED)
+    // recursive example and principles (1-2 example)
+  case 24:
+    leetcode_permutation();
+    break;
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
   }
+  //linkedin list / hash table / string processing
+  //cache problem
+  //FSM 
+  //dynamic programming 
+  //ordering conflict
+  //tricky problems
 }
 
 struct STreeNode {
@@ -1766,7 +1778,7 @@ vector<int> mergeSort(vector<int> in, int startIdx, int endIdx) {
   //  right <-- mergesort()
   int middleIdx = (startIdx + endIdx) / 2;
   vector<int> leftHalf = mergeSort(in, startIdx, middleIdx);
-  vector<int> rightHalf = mergeSort(in, middleIdx+1, endIdx);
+  vector<int> rightHalf = mergeSort(in, middleIdx + 1, endIdx);
 
   // merged = mergeTwoSOrtedLists(left, right)
   merged = mergeTwoSortedLists(leftHalf, rightHalf);
@@ -1784,29 +1796,96 @@ void basic_mergeSort() {
   for (auto &ir : merged)
     printf("%d ", ir);
   printf("\n");
+
+  //               quick sort       merge sort     // heap sort
+  // complexity     O(NlogN)         O(NlogN)      // O(NlogN)
+  // worse case      O(N^2)          O(NlogN)      // O(NlogN)
+  //  memory        in-place (less)  not-in-place (more)
+  // use case       hw, small         general, large data
 }
 
-int revertInteger(int num) { return -1; }
+int revertInteger(int num) {
+
+  int revertNum = 0;
+  while (num) {
+    int digit = num % 10;
+    revertNum = revertNum * 10 + digit;
+    num /= 10;
+  }
+
+  return revertNum;
+}
 void leetcode_revert_integer() {
-  int num = 420;
+  int num = 12345;
   num = revertInteger(num);
   printf("reverted number = %d (ans : 54321)\n", num);
 }
 
-int funcEvenOddDiff(int num) { return -1; }
+int funcEvenOddDiff(int num) {
+  // HW1017
+  return -1;
+}
 void leetcode_even_odd_diff() {
   int X = 263541;
+  // |(2+3+4)- (6+5+1)| = 3
   int diff = funcEvenOddDiff(X);
   printf("diff =%d (ans : 3)\n", diff);
 
   X = 131;
+  // |(1+1) - 3| = 1
   diff = funcEvenOddDiff(X);
   printf("diff =%d (ans : 1)\n", diff);
 }
 
-void leetcode_bits_resersal() {}
+void printIntInBinary(int word) {
 
-void leetcode_print_decimal_in_binary() {}
+  // for 32-bit
+  for (int i = 31; i >= 0; --i) {
+    int bit = (word >> i) & 1;
+    cout << bit;
+
+    if (i % 4 == 0 && i != 0) {
+      cout << " ";
+    }
+  }
+
+  cout << endl;
+}
+
+// n & (n - 1), n = 8
+void leetcode_print_decimal_in_binary() {
+  // >>
+  // <<
+  // &
+  // |
+
+  int word = 20; // 16+4
+  printIntInBinary(word);
+  // expected: "0000 0000 0000 0000 0000 0000 0001 0100"
+}
+
+int checkIfPowerOfTwo(int word) { return !(word & (word - 1)); }
+
+void leetcode_check_power_of_two() {
+  int X = 9;
+  int isPowerOfTwo = checkIfPowerOfTwo(X);
+  printf("%d is power of two: %d\n", X, isPowerOfTwo);
+}
+
+int reverseBits(int word) {
+  // HW1017
+  return -1;
+}
+
+void leetcode_bits_resersal() {
+  int word = 20; // 16+4
+  // "0000 0000 0000 0000 0000 0000 0001 0100"
+
+  int reversed = reverseBits(word);
+
+  printIntInBinary(reversed);
+  //  0010 1000 0000 0000 0000 0000 0000 0000
+}
 
 #define QUICKSORT_ALTER 1
 
@@ -1903,4 +1982,35 @@ void basic_quickSort() {
   for (auto &ir : in)
     printf("%d ", ir);
   printf("\n");
+}
+
+int permuteData(vector<int> data){
+  int num = 0;
+  // f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
+  //                ^^^^^^^^^^^
+  //               = f({c} |b) + f({b} |c)
+  //              f({}|c )
+  // HW1017 : backtracking , think about if "memoization" can be used
+  
+
+  return num;
+}
+
+void leetcode_permutation()
+{
+  vector<int> data({1, 2, 3});
+  // 3! = 3x2x1
+  //
+  // 1, 2, 3
+  // 1, 3, 2
+  // 2, 1, 3
+  // 2, 3, 1
+  // 3, 1, 2
+  // 3, 2, 1
+
+  int num = permuteData(data);
+
+  printf("number of permutation: %d (ans : 6) \n", num);
+
+  
 }
