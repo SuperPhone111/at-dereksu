@@ -1815,6 +1815,7 @@ int revertInteger(int num) {
 
   return revertNum;
 }
+
 void leetcode_revert_integer() {
   int num = 12345;
   num = revertInteger(num);
@@ -1823,8 +1824,22 @@ void leetcode_revert_integer() {
 
 int funcEvenOddDiff(int num) {
   // HW1017
-  return -1;
+  int evenSum = 0, oddSum = 0;
+  int pos = 0;
+  while (num) {
+    int digit = num % 10;
+    if (pos & 1) {
+      oddSum += digit;
+    } else {
+      evenSum += digit;
+    }
+    num /= 10;
+    pos++;
+  }
+
+  return abs(evenSum - oddSum);
 }
+
 void leetcode_even_odd_diff() {
   int X = 263541;
   // |(2+3+4)- (6+5+1)| = 3
