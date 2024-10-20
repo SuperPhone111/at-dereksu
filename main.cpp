@@ -1889,7 +1889,12 @@ void leetcode_check_power_of_two() {
 
 int reverseBits(int word) {
   // HW1017
-  return -1;
+  int reversed = 0;
+  for (int i = 0; i < 32; i++) {
+    int bit = (word >> i) & 1;
+    reversed |= (bit << (31 - i));
+  }
+  return reversed;
 }
 
 void leetcode_bits_resersal() {
