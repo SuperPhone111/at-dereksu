@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
 #include "includes.h"
@@ -2004,6 +2005,24 @@ void basic_quickSort() {
   printf("\n");
 }
 
+void permute(vector<int> &data, vector<int> &path, int &num, vector<vector<int>> &result) {
+  // exception
+  if (path.size() == data.size()) {
+      num++;
+      result.push_back(path);
+      return;
+  }
+  // general
+  for (auto n : data) {
+    if (count(begin(path), end(path), n)) {
+      continue;
+    }
+    path.push_back(n);
+    permute(data, path, num, result);
+    path.pop_back();
+  }
+}
+
 int permuteData(vector<int> data){
   int num = 0;
   // f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
@@ -2011,7 +2030,16 @@ int permuteData(vector<int> data){
   //               = f({c} |b) + f({b} |c)
   //              f({}|c )
   // HW1017 : backtracking , think about if "memoization" can be used
-  
+  vector<int> path;
+  vector<vector<int>> result;
+  permute(data, path, num, result);
+
+  for (int i = 0; i < result.size(); i++) {
+    for (int j = 0; j < result[i].size(); j++) {
+      cout << result[i][j] << " ";
+    }
+    cout << endl;
+  }
 
   return num;
 }
