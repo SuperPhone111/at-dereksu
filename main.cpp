@@ -14,7 +14,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 22;
+  int testID = 24;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -2051,7 +2051,8 @@ int permuteData(vector<int> data) {
 }
 
 void leetcode_permutation() {
-  vector<int> data({1, 2, 3});
+  vector<int> data;
+
   // 3! = 3x2x1
   //
   // 1, 2, 3
@@ -2061,9 +2062,14 @@ void leetcode_permutation() {
   // 3, 1, 2
   // 3, 2, 1
 
-  int num = permuteData(data);
+  data = {1, 2, 3};
+  printf("number of permutation: %d (ans : 6) \n", permuteData(data));
 
-  printf("number of permutation: %d (ans : 6) \n", num);
+  data = {1, 1, 2, 3};
+  printf("number of permutation: %d (ans : 12) \n", permuteData(data));
+
+  data = {1, 1, 2, 2, 3, 3};
+  printf("number of permutation: %d (ans : 90) \n", permuteData(data));
 }
 
 class CPrefixScoreBase {
