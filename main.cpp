@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
@@ -2029,12 +2030,84 @@ void permute(vector<int> &data, vector<int> &path, int &num,
   }
 }
 
+#define PERMUTE_VK 1
+
+#if PERMUTE_VK
+
+#define PERMUTE_MEMO 1
+
+// f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
+//                ^^^^^^^^^^^
+//               = f({c} | a, b) + f({b} |a, c)
+//              f({}|a, b, c )
+
+string getHashKey(vector<int> nums) {
+  stringstream ss;
+  for (int i = 0; i < nums.size(); i++)
+    ss << nums[i] << "_";
+  // printf("haskey = %s\n", ss.str().c_str());
+  return ss.str();
+}
+
+int permute(vector<int> nums, vector<int> fixed,
+            unordered_set<string> &permutedRes) {
+
+  int sum = 0;
+
+  // exception
+  if (nums.empty()) {
+#if PERMUTE_MEMO    
+    return 1;
+#else
+    string key = getHashKey(fixed);
+
+    if (permutedRes.find(key) == permutedRes.end()) {
+      permutedRes.insert(key);
+      sum = 1;
+
+      //      printf("found: %s\n", key.c_str());
+    }
+    // else {
+    //   printf("repeated: %s\n", key.c_str());
+    // }
+    return sum;
+#endif
+  }
+
+  // general
+  for (int i = 0; i < nums.size(); i++) {
+    int cached = nums[i];
+    nums.erase(nums.begin() + i);
+    fixed.push_back(cached);
+#if PERMUTE_MEMO
+    string permuteKey = getHashKey(fixed) + getHashKey(nums);
+    if(permutedRes.find(permuteKey) == permutedRes.end())
+    {
+#endif    
+    sum += permute(nums, fixed, permutedRes);
+#if PERMUTE_MEMO
+      permutedRes.insert(permuteKey);
+    }
+#endif    
+    nums.insert(nums.begin() + i, cached);
+    fixed.pop_back();
+  }
+  return sum;
+}
+
+int permuteData(vector<int> nums) {
+  unordered_set<string> permutedRes;
+  permutedRes.clear();
+  return permute(nums, vector<int>(0), permutedRes);
+}
+
+#else
 int permuteData(vector<int> data) {
   int num = 0;
   // f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
   //                ^^^^^^^^^^^
-  //               = f({c} |b) + f({b} |c)
-  //              f({}|c )
+  //               = f({c} | a, b) + f({b} |a, c)
+  //              f({}|a, b, c )
   // HW1017 : backtracking , think about if "memoization" can be used
   vector<int> path;
   vector<vector<int>> result;
@@ -2049,6 +2122,7 @@ int permuteData(vector<int> data) {
 
   return num;
 }
+#endif
 
 void leetcode_permutation() {
   vector<int> data;
@@ -2062,15 +2136,28 @@ void leetcode_permutation() {
   // 3, 1, 2
   // 3, 2, 1
 
+  // Permutation : P(N, N), P(N, K)
+  // Combintation : C(N, K)
+
+  //time complexity
+  // backtracking : O(N! M)
+  
   data = {1, 2, 3};
   printf("number of permutation: %d (ans : 6) \n", permuteData(data));
 
+  // backtracking + memoization : O( N!/f M)
+  //  f = 2! 
   data = {1, 1, 2, 3};
   printf("number of permutation: %d (ans : 12) \n", permuteData(data));
 
+  // backtracking + memoization : O( N!/f M)
+  //  f = 2! 2! 2!  ..
+  
   data = {1, 1, 2, 2, 3, 3};
   printf("number of permutation: %d (ans : 90) \n", permuteData(data));
 }
+//leetcode : P(N, k)
+//leetcode : targetsum 
 
 class CPrefixScoreBase {
 public:
@@ -2085,13 +2172,13 @@ class CPrefixScore : public CPrefixScoreBase {
 public:
   vector<int> sumPrefixScores(vector<string> &words) {
     vector<int> scores;
-    // HW1017 (optional)
+    // HW1023 (optional)
     return scores;
   }
 };
 
 void leetcode_prefix_score() {
-  // HW1017 (optional)
+  // HW1023
   /*
 
   https://leetcode.com/problems/sum-of-prefix-scores-of-strings/description/

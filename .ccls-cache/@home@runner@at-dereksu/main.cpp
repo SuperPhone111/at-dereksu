@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -5,6 +6,7 @@
 #include <sstream>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 // Google : cplusplus, stackoverflow, geeksforgeeks
 
@@ -13,7 +15,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 15;
+  int testID = 24;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -71,25 +73,41 @@ int main(int argc, char **argv) {
     basic_mergeSort();
     break;
     // digit processing
-  case 18:
+  case 18: // decimal
     leetcode_revert_integer();
     break;
   case 19:
     leetcode_even_odd_diff();
     break;
-  case 20:
+  case 20: // binary
     leetcode_bits_resersal();
     break;
-  case 21:
+  case 22:
+    leetcode_check_power_of_two();
+    break;
+  case 23:
     leetcode_print_decimal_in_binary();
     break;
-
-  // unordered_map, map, unordered_set, set (SKIPPED)
-  // recursive example and principles (1-2 example)
+    // unordered_map, map, unordered_set, set (SKIPPED)
+    // recursive example and principles (1-2 example)
+  //---  Dynamic Programming ---//
+  case 24:
+    leetcode_permutation();
+    break;
+  //--- LinkedList / Hash Table --- //
+  case 25:
+    leetcode_prefix_score();
+    break;
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
   }
+  // linkedin list / hash table / string processing
+  // cache problem
+  // FSM
+  // dynamic programming
+  // ordering conflict
+  // tricky problems
 }
 
 struct STreeNode {
@@ -1541,14 +1559,69 @@ void leetcode_functionParsing() {
   printf("%d (ans = 18)\n", res);
 }
 
+void siftDown(int currentIdx, int endIdx, vector<int> &heap) {
+  int childOneIdx = currentIdx * 2 + 1;
+  while (childOneIdx <= endIdx) {
+    int childTwoIdx = currentIdx * 2 + 2 <= endIdx ? currentIdx * 2 + 2 : -1;
+    int idxToSwap;
+    if (childTwoIdx != -1 && heap[childTwoIdx] < heap[childOneIdx]) {
+      idxToSwap = childTwoIdx;
+    } else {
+      idxToSwap = childOneIdx;
+    }
+    if (heap[idxToSwap] < heap[currentIdx]) {
+      swap(heap[idxToSwap], heap[currentIdx]);
+      currentIdx = idxToSwap;
+      childOneIdx = currentIdx * 2 + 1;
+    } else {
+      return;
+    }
+  }
+}
+
+vector<int> buildMinHeap(vector<int> &vector) {
+  // Write your code here.
+  int firstParentIdx = (vector.size() - 2) / 2;
+  for (int i = firstParentIdx; i >= 0; i--) {
+    siftDown(i, vector.size() - 1, vector);
+    // for (auto n : vector) {
+    //   cout << n << " " ;
+    // }
+    // cout << endl;
+  }
+  // cout << "sorted: ";
+  // for (auto n : vector) {
+  //   cout << n << " " ;
+  // }
+  return vector;
+}
+
 int funcFindKthMinFromArray(vector<int> vecData, int k) {
   // HW0926
-  return -1;
+  buildMinHeap(vecData);
+  for (int endIdx = vecData.size() - 1; endIdx >= 0; endIdx--) {
+    swap(vecData[0], vecData[endIdx]);
+    siftDown(0, endIdx - 1, vecData);
+  }
+  cout << "sorted: ";
+  for (auto n : vecData) {
+    cout << n << " ";
+  }
+  cout << endl;
+  for (int i = k; i > 1; i--) {
+    vecData.pop_back();
+  }
+  return vecData.back();
 }
 
 void leetcode_bt_findKthMin() {
   // Given any array/vector, find the K-min number.
   // Example: array = {5, 4, 1, 9, 2, 3}, if K=3, the 3rd min number is 3.
+  // d=0 =>1              5(0)
+  //                     /    \
+  // d=1 =>1+2        4(1)    1(2)
+  //                 /   \      /   \
+  // d=2 =>1+2+4   9(3)  2(4)  3(5)  null(6)
   vector<int> vecData({5, 4, 1, 9, 2, 3});
   printf("input= { ");
   for (auto &ir : vecData) {
@@ -1561,13 +1634,13 @@ void leetcode_bt_findKthMin() {
   printf("%d-min is %d\n\n", k, kthMin);
 }
 
-void pivotPartition(vector<int> &in) {
+int pivotPartition(vector<int> &in, int startIdx, int endIdx) {
   // {5, 2, 6, 1, 8, 3, 6, 9, 4}
   //                          ^^
   //  ^ -->             <--^
   // {smaller than pivot} {pivot} {greater than pivot}
-  int startIdx = 0;
-  int endIdx = in.size() - 1;
+  // int startIdx = 0;
+  // int endIdx = in.size() - 1;
 
   int pivotIdx = endIdx;
   int forwardIdx = startIdx, backwardIdx = endIdx - 1;
@@ -1603,6 +1676,8 @@ void pivotPartition(vector<int> &in) {
   int tmp = in[forwardIdx];
   in[forwardIdx] = in[pivotIdx];
   in[pivotIdx] = tmp;
+
+  return forwardIdx;
 }
 
 void basic_pivot_partitioning() {
@@ -1617,7 +1692,7 @@ void basic_pivot_partitioning() {
   printf("\n");
 
   // function
-  pivotPartition(vecData);
+  pivotPartition(vecData, 0, vecData.size() - 1);
 
   printf("after : ");
   for (auto &ir : vecData) {
@@ -1626,9 +1701,64 @@ void basic_pivot_partitioning() {
   printf("\n");
 }
 
+#define MERGETWOLIST_ALTER 1
+
 vector<int> mergeTwoSortedLists(vector<int> a, vector<int> b) {
-  // HW0927 (optional)
-  return vector<int>(0);
+  // METHOD 0: bubble sort (X)
+  // METHOD 1 : std:sort() => O(NlogN)
+  // NOTE: requirement : reduced the complexity to O(N)
+  vector<int> merged;
+
+#if MERGETWOLIST_ALTER
+  // backtracking
+  while (!a.empty() || !b.empty()) // Step 0: infinite loop //Step 3: satisfied
+                                   // condition = ~(encoding condition)
+  {
+    // Step 1: general condition & iteration
+    // if(!a.empty() && !b.empty()) // compare a.front() , b.front()
+    // else if (a.empty) => take b
+    // else (b.empty) -=> take a
+    vector<int> &selected = (!a.empty() && !b.empty())
+                                ? (a.front() < b.front() ? a : b)
+                                : (a.empty() ? b : a);
+
+    // get the value, pop out the front, either a or b
+    merged.push_back(selected.front());
+    selected.erase(selected.begin());
+
+    // Step 2: ending condition
+    // if(a.empty() && b.empty()) break;
+  }
+
+#else
+  int merged_size = a.size() + b.size();
+
+  int leftIdx = 0, rightIdx = 0;
+  for (int i = 0; i < merged_size; i++) {
+    ///// both a, b exist
+    if (leftIdx < a.size() && rightIdx < b.size()) {
+      if (a[leftIdx] < b[rightIdx]) {
+        merged.push_back(a[leftIdx]);
+        leftIdx++;
+      } else {
+        merged.push_back(b[rightIdx]);
+        rightIdx++;
+      }
+    }
+    ///// otherwise, if a exist => take a, other take b
+    else if (leftIdx < a.size()) // take a
+    {
+      merged.push_back(a[leftIdx]);
+      leftIdx++;
+    } else // take b
+    {
+      merged.push_back(b[rightIdx]);
+      rightIdx++;
+    }
+  }
+#endif
+
+  return merged;
 }
 
 void leetcode_merge_sorted_lists() {
@@ -1642,30 +1772,183 @@ void leetcode_merge_sorted_lists() {
   printf("\n");
 }
 
-void basic_mergeSort() {}
-int revertInteger(int num) { return -1; }
+vector<int> mergeSort(vector<int> in, int startIdx, int endIdx) {
+  // HW1003
+  vector<int> merged;
+  // excpetion / base
+  if (startIdx >= endIdx) {
+    return {in[startIdx]};
+  }
+
+  // general
+  //  left <-- mergesort()
+  //  right <-- mergesort()
+  int middleIdx = (startIdx + endIdx) / 2;
+  vector<int> leftHalf = mergeSort(in, startIdx, middleIdx);
+  vector<int> rightHalf = mergeSort(in, middleIdx + 1, endIdx);
+
+  // merged = mergeTwoSOrtedLists(left, right)
+  merged = mergeTwoSortedLists(leftHalf, rightHalf);
+  return merged;
+}
+
+void basic_mergeSort() {
+  vector<int> in({3, 1, 6, 2, 9, 7, 4, 8});
+
+  // f(X0, X1) = f(f(X00, X01), f(X10, X11) )
+  int startIdx = 0;
+
+  int endIdx = in.size() - 1;
+  vector<int> merged = mergeSort(in, startIdx, endIdx);
+  for (auto &ir : merged)
+    printf("%d ", ir);
+  printf("\n");
+
+  //               quick sort       merge sort     // heap sort
+  // complexity     O(NlogN)         O(NlogN)      // O(NlogN)
+  // worse case      O(N^2)          O(NlogN)      // O(NlogN)
+  //  memory        in-place (less)  not-in-place (more)
+  // use case       hw, small         general, large data
+}
+
+int revertInteger(int num) {
+
+  int revertNum = 0;
+  while (num) {
+    int digit = num % 10;
+    revertNum = revertNum * 10 + digit;
+    num /= 10;
+  }
+
+  return revertNum;
+}
+
 void leetcode_revert_integer() {
-  int num = 420;
+  int num = 12345;
   num = revertInteger(num);
   printf("reverted number = %d (ans : 54321)\n", num);
 }
 
-int funcEvenOddDiff(int num) { return -1; }
+int funcEvenOddDiff(int num) {
+  // HW1017
+  int evenSum = 0, oddSum = 0;
+  int pos = 0;
+  while (num) {
+    int digit = num % 10;
+    if (pos & 1) {
+      oddSum += digit;
+    } else {
+      evenSum += digit;
+    }
+    num /= 10;
+    pos++;
+  }
+
+  return abs(evenSum - oddSum);
+}
+
 void leetcode_even_odd_diff() {
   int X = 263541;
+  // |(2+3+4)- (6+5+1)| = 3
   int diff = funcEvenOddDiff(X);
   printf("diff =%d (ans : 3)\n", diff);
 
   X = 131;
+  // |(1+1) - 3| = 1
   diff = funcEvenOddDiff(X);
   printf("diff =%d (ans : 1)\n", diff);
 }
 
-void leetcode_bits_resersal() {}
+void printIntInBinary(int word) {
 
-void leetcode_print_decimal_in_binary() {}
+  // for 32-bit
+  for (int i = 31; i >= 0; --i) {
+    int bit = (word >> i) & 1;
+    cout << bit;
+
+    if (i % 4 == 0 && i != 0) {
+      cout << " ";
+    }
+  }
+
+  cout << endl;
+}
+
+// n & (n - 1), n = 8
+void leetcode_print_decimal_in_binary() {
+  // >>
+  // <<
+  // &
+  // |
+
+  int word = 20; // 16+4
+  printIntInBinary(word);
+  // expected: "0000 0000 0000 0000 0000 0000 0001 0100"
+}
+
+int checkIfPowerOfTwo(int word) { return !(word & (word - 1)); }
+
+void leetcode_check_power_of_two() {
+  int X = 9;
+  int isPowerOfTwo = checkIfPowerOfTwo(X);
+  printf("%d is power of two: %d\n", X, isPowerOfTwo);
+}
+
+int reverseBits(int word) {
+  // HW1017
+  int reversed = 0;
+  for (int i = 0; i < 32; i++) {
+    int bit = (word >> i) & 1;
+    reversed |= (bit << (31 - i));
+  }
+  return reversed;
+}
+
+void leetcode_bits_resersal() {
+  int word = 20; // 16+4
+  // "0000 0000 0000 0000 0000 0000 0001 0100"
+
+  int reversed = reverseBits(word);
+
+  printIntInBinary(reversed);
+  //  0010 1000 0000 0000 0000 0000 0000 0000
+}
+
+#define QUICKSORT_ALTER 1
 
 void quickSort(vector<int> &in, int startIdx, int endIdx) {
+
+#if QUICKSORT_ALTER
+  // backtracking + memoization (optional)
+  //    {1, 2, 1, 1, 6, 9, 2, 1, 3, 1}
+  //  memoization:
+  //    - (unordered_map): key : string combeined with numbers, value = sorted
+  //    results
+
+  /*
+  stringstream newStr;
+  int a= 5;
+  string str = "John";
+  newStr << a << str;
+  string tmp = newStr.str();
+  */
+  // f(X) = f(Xsmaller) + {pivot} + f(Xgreater)
+
+  // exception
+  if (startIdx >= endIdx)
+    return;
+
+  // general
+  // partition in by pivot
+  int pivotIdx = pivotPartition(in, startIdx, endIdx);
+
+  // smaller
+  quickSort(in, startIdx, pivotIdx - 1);
+
+  // greater
+  quickSort(in, pivotIdx + 1, endIdx);
+
+#else
   // HW0926
 
   // exception
@@ -1692,7 +1975,8 @@ void quickSort(vector<int> &in, int startIdx, int endIdx) {
     }
   }
   swap(in[rightIdx], in[pivotIdx]);
-  bool leftSubarrayIsSmaller = rightIdx - 1 - startIdx < endIdx - (rightIdx + 1);
+  bool leftSubarrayIsSmaller =
+      rightIdx - 1 - startIdx < endIdx - (rightIdx + 1);
   if (leftSubarrayIsSmaller) {
     // cout << "[left first]" << endl;
     // cout << "startIdx=" << startIdx << ",endIdx=" << endIdx  << endl;
@@ -1706,6 +1990,7 @@ void quickSort(vector<int> &in, int startIdx, int endIdx) {
     quickSort(in, rightIdx + 1, endIdx);
     quickSort(in, startIdx, rightIdx - 1);
   }
+#endif
 }
 
 void basic_quickSort() {
@@ -1724,4 +2009,259 @@ void basic_quickSort() {
   for (auto &ir : in)
     printf("%d ", ir);
   printf("\n");
+}
+
+void permute(vector<int> &data, vector<int> &path, int &num,
+             vector<vector<int>> &result) {
+  // exception
+  if (path.size() == data.size()) {
+    num++;
+    result.push_back(path);
+    return;
+  }
+  // general
+  for (auto n : data) {
+    if (count(begin(path), end(path), n)) {
+      continue;
+    }
+    path.push_back(n);
+    permute(data, path, num, result);
+    path.pop_back();
+  }
+}
+
+#define PERMUTE_VK 1
+
+#if PERMUTE_VK
+
+#define PERMUTE_MEMO 1
+
+// f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
+//                ^^^^^^^^^^^
+//               = f({c} | a, b) + f({b} |a, c)
+//              f({}|a, b, c )
+
+string getHashKey(vector<int> nums) {
+  stringstream ss;
+  for (int i = 0; i < nums.size(); i++)
+    ss << nums[i] << "_";
+  // printf("haskey = %s\n", ss.str().c_str());
+  return ss.str();
+}
+
+int permute(vector<int> nums, vector<int> fixed,
+            unordered_set<string> &permutedRes) {
+
+  int sum = 0;
+
+  // exception
+  if (nums.empty()) {
+#if PERMUTE_MEMO    
+    return 1;
+#else
+    string key = getHashKey(fixed);
+
+    if (permutedRes.find(key) == permutedRes.end()) {
+      permutedRes.insert(key);
+      sum = 1;
+
+      //      printf("found: %s\n", key.c_str());
+    }
+    // else {
+    //   printf("repeated: %s\n", key.c_str());
+    // }
+    return sum;
+#endif
+  }
+
+  // general
+  for (int i = 0; i < nums.size(); i++) {
+    int cached = nums[i];
+    nums.erase(nums.begin() + i);
+    fixed.push_back(cached);
+#if PERMUTE_MEMO
+    string permuteKey = getHashKey(fixed) + getHashKey(nums);
+    if(permutedRes.find(permuteKey) == permutedRes.end())
+    {
+#endif    
+    sum += permute(nums, fixed, permutedRes);
+#if PERMUTE_MEMO
+      permutedRes.insert(permuteKey);
+    }
+#endif    
+    nums.insert(nums.begin() + i, cached);
+    fixed.pop_back();
+  }
+  return sum;
+}
+
+int permuteData(vector<int> nums) {
+  unordered_set<string> permutedRes;
+  permutedRes.clear();
+  return permute(nums, vector<int>(0), permutedRes);
+}
+
+#else
+int permuteData(vector<int> data) {
+  int num = 0;
+  // f({a, b, c}) = f( {b, c} | a) + f({a, c} | b) + f({a, b} |c)
+  //                ^^^^^^^^^^^
+  //               = f({c} | a, b) + f({b} |a, c)
+  //              f({}|a, b, c )
+  // HW1017 : backtracking , think about if "memoization" can be used
+  vector<int> path;
+  vector<vector<int>> result;
+  permute(data, path, num, result);
+
+  for (int i = 0; i < result.size(); i++) {
+    for (int j = 0; j < result[i].size(); j++) {
+      cout << result[i][j] << " ";
+    }
+    cout << endl;
+  }
+
+  return num;
+}
+#endif
+
+void leetcode_permutation() {
+  vector<int> data;
+
+  // 3! = 3x2x1
+  //
+  // 1, 2, 3
+  // 1, 3, 2
+  // 2, 1, 3
+  // 2, 3, 1
+  // 3, 1, 2
+  // 3, 2, 1
+
+  // Permutation : P(N, N), P(N, K)
+  // Combintation : C(N, K)
+
+  //time complexity
+  // backtracking : O(N! M)
+  
+  data = {1, 2, 3};
+  printf("number of permutation: %d (ans : 6) \n", permuteData(data));
+
+  // backtracking + memoization : O( N!/f M)
+  //  f = 2! 
+  data = {1, 1, 2, 3};
+  printf("number of permutation: %d (ans : 12) \n", permuteData(data));
+
+  // backtracking + memoization : O( N!/f M)
+  //  f = 2! 2! 2!  ..
+  
+  data = {1, 1, 2, 2, 3, 3};
+  printf("number of permutation: %d (ans : 90) \n", permuteData(data));
+}
+//leetcode : P(N, k)
+//leetcode : targetsum 
+
+class CPrefixScoreBase {
+public:
+  virtual vector<int> sumPrefixScores(vector<string> &words) {
+    vector<int> scores;
+    printf("need a implementation");
+    return scores;
+  }
+};
+
+class CPrefixScore : public CPrefixScoreBase {
+public:
+  vector<int> sumPrefixScores(vector<string> &words) {
+    vector<int> scores;
+    // HW1023 (optional)
+    return scores;
+  }
+};
+
+void leetcode_prefix_score() {
+  // HW1023
+  /*
+
+  https://leetcode.com/problems/sum-of-prefix-scores-of-strings/description/
+
+  You are given an array words of size n consisting of non-empty strings.
+
+  We define the score of a string word as the number of strings words[i]
+  such that word is a prefix of words[i].
+
+  For example, if words = ["a", "ab", "abc", "cab"],
+  then the score of "ab" is 2, since "ab" is a prefix of both "ab" and "abc".
+  Return an array answer of size n
+  where answer[i] is the sum of scores of every non-empty prefix of words[i].
+
+  Note that a string is considered as a prefix of itself.
+
+
+  Example 1:
+
+  Input: words = ["abc","ab","bc","b"]
+  Output: [5,4,3,2]
+  Explanation: The answer for each string is the following:
+
+  - "abc" has 3 prefixes: "a", "ab", and "abc".
+  - There are 2 strings with the prefix "a", 2 strings with the prefix "ab",
+  and 1 string with the prefix "abc".
+  The total is answer[0] = 2 + 2 + 1 = 5.
+
+  - "ab" has 2 prefixes: "a" and "ab".
+  - There are 2 strings with the prefix "a", and 2 strings with the prefix "ab".
+  The total is answer[1] = 2 + 2 = 4.
+
+  - "bc" has 2 prefixes: "b" and "bc".
+  - There are 2 strings with the prefix "b", and 1 string with the prefix "bc".
+  The total is answer[2] = 2 + 1 = 3.
+
+  - "b" has 1 prefix: "b".
+  - There are 2 strings with the prefix "b".
+  The total is answer[3] = 2.
+
+  Example 2:
+
+  Input: words = ["abcd"]
+  Output: [4]
+  Explanation:
+  "abcd" has 4 prefixes: "a", "ab", "abc", and "abcd".
+  Each prefix has a score of one, so the total is answer[0] = 1 + 1 + 1 + 1 = 4.
+
+
+  Constraints:
+
+  1 <= words.length <= 1000
+  1 <= words[i].length <= 1000
+  words[i] consists of lowercase English letters.
+  */
+
+  CPrefixScore objDerived;
+  CPrefixScoreBase *obj;
+
+  enum _IMPLT_ID {
+    IMPLT_DERIVED = 0,
+  };
+
+  int impltID = IMPLT_DERIVED;
+
+  if (impltID == IMPLT_DERIVED) {
+    obj = &objDerived;
+  } else {
+    printf("not a suppoted implementation %d\n", impltID);
+    exit(-1);
+  }
+
+  vector<int> scores;
+
+  vector<string> words;
+  words.push_back("abc");
+  words.push_back("ab");
+  words.push_back("bc");
+  words.push_back("b");
+
+  scores = obj->sumPrefixScores(words);
+  for (auto &ir : scores)
+    printf("%d, ", ir);
+  printf("\n");
+  printf("ans : 5, 4, 3, 2\n");
 }

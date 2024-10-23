@@ -19,5 +19,8 @@ void leetcode_revert_integer();
 void leetcode_even_odd_diff();
 void leetcode_bits_resersal();
 void leetcode_print_decimal_in_binary();
+void leetcode_check_power_of_two();
 
 // experienced-level course
+void leetcode_permutation();
+void leetcode_prefix_score();
