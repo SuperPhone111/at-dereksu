@@ -15,7 +15,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 24;
+  int testID = 25;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -2169,10 +2169,46 @@ public:
 };
 
 class CPrefixScore : public CPrefixScoreBase {
+  class TrieNode {
+    public:
+      TrieNode *next[26];
+      int count;
+      TrieNode(): count(0)
+      {
+        for (int i = 0; i < 26; i++) {
+          next[i] = nullptr;
+        }
+      }
+  };
+
 public:
   vector<int> sumPrefixScores(vector<string> &words) {
     vector<int> scores;
-    // HW1023 (optional)
+    // HW1023
+    TrieNode *root = new TrieNode();
+    for (string &word : words) {
+      TrieNode *node = root;
+      for (char ch : word) {
+        if (!node->next[ch - 'a']) {
+          node->next[ch-'a'] = new TrieNode();
+        }
+        node = node->next[ch - 'a'];
+        node->count++;
+      }
+    }
+
+    for (string &word : words) {
+      TrieNode *node = root;
+      int score = 0;
+      for (char ch : word) {
+        if (!node->next[ch - 'a']) {
+          break;
+        }
+        node = node->next[ch - 'a'];
+        score += node->count;
+      }
+      scores.push_back(score);
+    }
     return scores;
   }
 };
