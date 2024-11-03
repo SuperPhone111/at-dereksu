@@ -27,3 +27,4 @@ void leetcode_prefix_score();
 void leetcode_LRU_cache();
 void leetcode_merge_interval();
 void leetcode_my_calendar();
+void basic_map_usage();

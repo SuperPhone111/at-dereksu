@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -95,7 +96,8 @@ int main(int argc, char **argv) {
     leetcode_permutation();
     break;
   case 25:
-
+    //
+    break;
   //--- LinkedList / Hash Table --- //
   case 30:
     leetcode_prefix_score();
@@ -110,6 +112,10 @@ int main(int argc, char **argv) {
   case 33:
     leetcode_my_calendar();
     break;
+  case 34:
+    basic_map_usage();
+    break;
+
   default:
     printf("not a supported testID %d\n", testID);
     exit(-1);
@@ -120,6 +126,41 @@ int main(int argc, char **argv) {
   // dynamic programming
   // ordering conflict
   // tricky problems
+}
+
+void basic_map_usage() {
+  map<int, int> data;
+
+  // start end
+  data[10] = 20;
+  data[5] = 7;
+  data[25] = 30;
+
+  for (auto &ir : data)
+    printf("%d %d\n", ir.first, ir.second);
+  printf("\n");
+
+  int key = 12;
+  auto it = data.lower_bound(key);
+  printf("key= %d, (%d, %d)\n", key, it->first, it->second);
+  auto preit = prev(it);
+  printf("previous key= %d, (%d, %d)\n", key, preit->first, preit->second);
+
+  key = 27;
+  it = data.lower_bound(key);
+  if (it == data.end()) {
+    printf("exceed the last key = %d\n", prev(data.end())->first);
+  } else {
+    printf("key= %d, (%d, %d)\n", key, it->first, it->second);
+  }
+
+  key = 2;
+  it = data.lower_bound(key);
+  if (it == data.end()) {
+    printf("exceed the last key = %d\n", prev(data.end())->first);
+  } else {
+    printf("key= %d, (%d, %d)\n", key, it->first, it->second);
+  }
 }
 
 class MyCalendarBase {
@@ -133,7 +174,10 @@ public:
 class MyCalendar : public MyCalendarBase {
 public:
   bool book(int start, int end) {
-    // TBD
+    // HW1003
+    // suggested : std::map<> :: lower_bound(key)
+    // https://www.geeksforgeeks.org/map-lower_bound-function-in-c-stl/
+
     return false;
   }
 };
@@ -217,7 +261,7 @@ public:
 class CMergeInterval : public CMergeIntervalBase {
   vector<vector<int>> merge(vector<vector<int>> &intervals) {
     vector<vector<int>> merged;
-    // TBD
+    // HW1003 (optional)
     return merged;
   }
 };
@@ -366,15 +410,14 @@ public:
   LRUCache(int cap) { reset(cap); }
 
   int get(int key) {
-    // TBD
+    // HW1103
     return -1;
   }
-
   void put(int key, int value) {
-    // TBD
+    // HW1103
   }
   void reset(int cap) {
-    // TBD
+    // HW1103
   }
 };
 
@@ -408,14 +451,14 @@ void leetcode_LRU_cache() {
   Explanation
   LRUCache lRUCache = new LRUCache(2);
   lRUCache.put(1, 1); // cache is {1=1}
-  lRUCache.put(2, 2); // cache is {1=1, 2=2}
-  lRUCache.get(1);    // return 1
-  lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+  lRUCache.put(2, 2); // cache is {1=1, 2=2} (2)
+  lRUCache.get(1);    // return 1 (1)
+  lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3} (3)
   lRUCache.get(2);    // returns -1 (not found)
-  lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+  lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3} (4)
   lRUCache.get(1);    // return -1 (not found)
-  lRUCache.get(3);    // return 3
-  lRUCache.get(4);    // return 4
+  lRUCache.get(3);    // return 3 (3)
+  lRUCache.get(4);    // return 4 (4)
 
 
   Constraints:
@@ -2553,6 +2596,52 @@ public:
   }
 };
 
+class CPrefixScoreLUT : public CPrefixScoreBase {
+public:
+  vector<int> sumPrefixScores(vector<string> &words) {
+    /*
+      words.push_back("abc");
+      words.push_back("ab");
+      words.push_back("bc");
+      words.push_back("b");
+
+      //     a  ab  abc  b bc
+      //     2  2   1    1  1
+    */
+
+    unordered_map<string, int> prefixMemo;
+    // create LUT - Look-Up-Table
+    for (auto word : words) {
+      while (!word.empty()) {
+        prefixMemo[word] = 0;
+        word.pop_back();
+      }
+    }
+
+    // get histogram of the prefix
+    for (auto word : words) {
+      while (!word.empty()) {
+        prefixMemo[word]++;
+        word.pop_back();
+      }
+    }
+
+    // sum up the prefix score for each "word"
+    vector<int> scores;
+    for (auto word : words) {
+
+      int sum = 0;
+      while (!word.empty()) {
+        sum += prefixMemo[word];
+        word.pop_back();
+      }
+      scores.push_back(sum);
+    }
+
+    return scores;
+  }
+};
+
 class CPrefixScore : public CPrefixScoreBase {
   class TrieNode {
   public:
@@ -2656,16 +2745,20 @@ void leetcode_prefix_score() {
   */
 
   CPrefixScore objDerived;
+  CPrefixScoreLUT objLUT;
   CPrefixScoreBase *obj;
 
   enum _IMPLT_ID {
-    IMPLT_DERIVED = 0,
+    IMPLT_DERIVED = 0, // O(MN)
+    IMPLT_LUT,
   };
 
-  int impltID = IMPLT_DERIVED;
+  int impltID = IMPLT_LUT;
 
   if (impltID == IMPLT_DERIVED) {
     obj = &objDerived;
+  } else if (impltID == IMPLT_LUT) {
+    obj = &objLUT;
   } else {
     printf("not a suppoted implementation %d\n", impltID);
     exit(-1);
