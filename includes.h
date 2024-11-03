@@ -24,3 +24,6 @@ void leetcode_check_power_of_two();
 // experienced-level course
 void leetcode_permutation();
 void leetcode_prefix_score();
+void leetcode_LRU_cache();
+void leetcode_merge_interval();
+void leetcode_my_calendar();

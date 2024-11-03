@@ -15,7 +15,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 25;
+  int testID = 30;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -94,9 +94,21 @@ int main(int argc, char **argv) {
   case 24:
     leetcode_permutation();
     break;
-  //--- LinkedList / Hash Table --- //
   case 25:
+
+  //--- LinkedList / Hash Table --- //
+  case 30:
     leetcode_prefix_score();
+    break;
+  case 31:
+    leetcode_LRU_cache();
+    break;
+  //--- Ordering conflict --- //
+  case 32:
+    leetcode_merge_interval();
+    break;
+  case 33:
+    leetcode_my_calendar();
     break;
   default:
     printf("not a supported testID %d\n", testID);
@@ -110,6 +122,380 @@ int main(int argc, char **argv) {
   // tricky problems
 }
 
+class MyCalendarBase {
+public:
+  virtual bool book(int start, int end) {
+    printf("need implementation\n");
+    return false;
+  }
+};
+
+class MyCalendar : public MyCalendarBase {
+public:
+  bool book(int start, int end) {
+    // TBD
+    return false;
+  }
+};
+
+void leetcode_my_calendar() {
+  //
+  //  https://leetcode.com/problems/my-calendar-i/description/
+  //
+  /*
+  You are implementing a program to use as your calendar. We can add a new event
+if adding the event will not cause a double booking.
+
+  The event can be represented as a pair of integers start and end that
+represents a booking on the half-open interval [start, end), the range of real
+numbers x such that start <= x < end.
+
+  Implement the MyCalendar class:
+
+  - MyCalendar() Initializes the calendar object.
+  - boolean book(int start, int end) Returns true if the event can be added to
+the calendar successfully without causing a double booking. Otherwise, return
+false and do not add the event to the calendar.
+
+Input
+["MyCalendar", "book", "book", "book"]
+[[], [10, 20], [15, 25], [20, 30]]
+Output
+[null, true, false, true]
+
+Explanation
+MyCalendar myCalendar = new MyCalendar();
+myCalendar.book(10, 20); // return True
+myCalendar.book(15, 25); // return False, It can not be booked because time 15
+is already booked by another event. myCalendar.book(20, 30); // return True, The
+event can be booked, as the first event takes every time less than 20, but not
+including 20.
+
+Constraints:
+
+0 <= start < end <= 10^9
+At most 1000 calls will be made to book.
+
+  */
+  MyCalendar objDerived;
+
+  MyCalendarBase *obj = nullptr;
+
+  obj = &objDerived;
+
+  bool booked;
+  int start, end;
+
+  start = 10;
+  end = 20;
+  booked = obj->book(start, end);
+  printf("[%d, %d) => %s", start, end, booked ? "true" : "false");
+  printf(" (ans = true)\n");
+
+  start = 15;
+  end = 25;
+  booked = obj->book(start, end);
+  printf("[%d, %d) => %s", start, end, booked ? "true" : "false");
+  printf(" (ans = false)\n");
+
+  start = 20;
+  end = 30;
+  booked = obj->book(start, end);
+  printf("[%d, %d) => %s", start, end, booked ? "true" : "false");
+  printf(" (ans = true)\n");
+}
+
+class CMergeIntervalBase {
+public:
+  virtual vector<vector<int>> merge(vector<vector<int>> &intervals) {
+    vector<vector<int>> merged;
+    printf("please derive your implementation from CmergeIntervalBase \n");
+    return merged;
+  }
+};
+
+class CMergeInterval : public CMergeIntervalBase {
+  vector<vector<int>> merge(vector<vector<int>> &intervals) {
+    vector<vector<int>> merged;
+    // TBD
+    return merged;
+  }
+};
+
+void leetcode_merge_interval() {
+  /*
+
+  https://leetcode.com/problems/merge-intervals/description/
+
+  Given an array of intervals where intervals[i] = [starti, endi], merge all
+  overlapping intervals, and return an array of the non-overlapping intervals
+  that cover all the intervals in the input.
+
+
+  Example 1:
+
+  Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
+  Output: [[1,6],[8,10],[15,18]]
+  Explanation: Since intervals [1,3] and [2,6] overlap, merge them into [1,6].
+  Example 2:
+
+  Input: intervals = [[1,4],[4,5]]
+  Output: [[1,5]]
+  Explanation: Intervals [1,4] and [4,5] are considered overlapping.
+
+
+  Constraints:
+
+  1 <= intervals.length <= 10^4
+  intervals[i].length == 2
+  0 <= starti <= endi <= 10^4
+
+  */
+
+  CMergeInterval objDerived;
+  CMergeIntervalBase *obj;
+
+  obj = &objDerived; // O(NlogN)
+
+  vector<vector<int>> intervals;
+  vector<vector<int>> mergedIntervals;
+  intervals.push_back({1, 3});
+  intervals.push_back({8, 10});
+  intervals.push_back({2, 6});
+  intervals.push_back({15, 18});
+
+  printf("== case 1: before merge ==\n");
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [1, 6] [8, 10], [15, 18]\n\n\n");
+
+  printf("== case 2: before merge ==\n");
+  intervals.clear();
+  intervals.push_back({1, 4});
+  intervals.push_back({4, 5});
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [1, 5]\n\n\n");
+
+  printf("== case 3: before merge ==\n");
+  intervals.clear();
+  intervals.push_back({1, 4});
+  intervals.push_back({2, 3});
+
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [1, 4]\n\n\n");
+
+  printf("== case 4: before merge ==\n");
+  intervals.clear();
+  intervals.push_back({1, 4});
+  intervals.push_back({0, 2});
+  intervals.push_back({3, 5});
+
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [0, 5]\n\n\n");
+
+  printf("== case 5: before merge ==\n");
+  intervals.clear();
+  intervals.push_back({2, 3});
+  intervals.push_back({5, 5});
+  intervals.push_back({2, 2});
+  intervals.push_back({3, 4});
+  intervals.push_back({3, 4});
+
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [2, 4], [5, 5]\n\n\n");
+}
+
+class LRUCacheBase {
+public:
+  virtual int get(int key) { return -1; }
+  virtual void put(int key, int value) {}
+  virtual void reset(int cap) {}
+};
+
+class LRUCache : public LRUCacheBase {
+public:
+  LRUCache(int cap) { reset(cap); }
+
+  int get(int key) {
+    // TBD
+    return -1;
+  }
+
+  void put(int key, int value) {
+    // TBD
+  }
+  void reset(int cap) {
+    // TBD
+  }
+};
+
+void leetcode_LRU_cache() {
+  /*
+
+  https://leetcode.com/problems/lru-cache/description/
+
+  Design a data structure that follows the constraints of a Least Recently Used
+  (LRU) cache.
+
+  Implement the LRUCache class:
+
+  LRUCache(int capacity) Initialize the LRU cache with positive size capacity.
+  int get(int key) Return the value of the key if the key exists, otherwise
+  return -1. void put(int key, int value) Update the value of the key if the key
+  exists. Otherwise, add the key-value pair to the cache. If the number of keys
+  exceeds the capacity from this operation, evict the least recently used key.
+  The functions get and put must each run in O(1) average time complexity.
+
+
+
+  Example 1:
+
+  Input
+  ["LRUCache", "put", "put", "get", "put", "get", "put", "get", "get", "get"]
+  [[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]
+  Output
+  [null, null, null, 1, null, -1, null, -1, 3, 4]
+
+  Explanation
+  LRUCache lRUCache = new LRUCache(2);
+  lRUCache.put(1, 1); // cache is {1=1}
+  lRUCache.put(2, 2); // cache is {1=1, 2=2}
+  lRUCache.get(1);    // return 1
+  lRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}
+  lRUCache.get(2);    // returns -1 (not found)
+  lRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}
+  lRUCache.get(1);    // return -1 (not found)
+  lRUCache.get(3);    // return 3
+  lRUCache.get(4);    // return 4
+
+
+  Constraints:
+
+  1 <= capacity <= 3000
+  0 <= key <= 10^4
+  0 <= value <= 10^5
+  At most 2 * 10^5 calls will be made to get and put.
+
+  */
+
+  LRUCache objOOne(2);
+  LRUCacheBase *obj;
+
+  enum IMPLT_ID_ {
+    IMPLT_OONE, // O(1)
+  };
+
+  int impltID = IMPLT_OONE;
+  if (impltID == IMPLT_OONE) {
+    obj = &objOOne;
+  } else {
+    printf("not a supported implementation");
+    exit(-1);
+  }
+  int val, key;
+
+  printf("------- test case 0 ---------\n");
+
+  obj->put(1, 1);
+  obj->put(2, 2);
+
+  key = 1;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: 1)\n", key, val);
+
+  obj->put(3, 3);
+
+  key = 2;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: -1)\n", key, val);
+
+  obj->put(4, 4);
+
+  key = 1;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: -1)\n", key, val);
+
+  key = 3;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: 3)\n", key, val);
+
+  key = 4;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: 4)\n", key, val);
+
+  printf("------- test case 1 ---------\n");
+  obj->reset(2);
+
+  key = 2;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: -1)\n", key, val);
+
+  obj->put(2, 6);
+
+  key = 1;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: -1)\n", key, val);
+
+  obj->put(1, 5);
+  obj->put(1, 2);
+
+  key = 1;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: 2)\n", key, val);
+
+  key = 2;
+  val = obj->get(key);
+  printf("get key= %d, val = %d (ans: 6)\n", key, val);
+}
 struct STreeNode {
   int val;
   STreeNode *left;
@@ -2056,7 +2442,7 @@ int permute(vector<int> nums, vector<int> fixed,
 
   // exception
   if (nums.empty()) {
-#if PERMUTE_MEMO    
+#if PERMUTE_MEMO
     return 1;
 #else
     string key = getHashKey(fixed);
@@ -2081,14 +2467,13 @@ int permute(vector<int> nums, vector<int> fixed,
     fixed.push_back(cached);
 #if PERMUTE_MEMO
     string permuteKey = getHashKey(fixed) + getHashKey(nums);
-    if(permutedRes.find(permuteKey) == permutedRes.end())
-    {
-#endif    
-    sum += permute(nums, fixed, permutedRes);
+    if (permutedRes.find(permuteKey) == permutedRes.end()) {
+#endif
+      sum += permute(nums, fixed, permutedRes);
 #if PERMUTE_MEMO
       permutedRes.insert(permuteKey);
     }
-#endif    
+#endif
     nums.insert(nums.begin() + i, cached);
     fixed.pop_back();
   }
@@ -2139,25 +2524,25 @@ void leetcode_permutation() {
   // Permutation : P(N, N), P(N, K)
   // Combintation : C(N, K)
 
-  //time complexity
-  // backtracking : O(N! M)
-  
+  // time complexity
+  //  backtracking : O(N! M)
+
   data = {1, 2, 3};
   printf("number of permutation: %d (ans : 6) \n", permuteData(data));
 
   // backtracking + memoization : O( N!/f M)
-  //  f = 2! 
+  //  f = 2!
   data = {1, 1, 2, 3};
   printf("number of permutation: %d (ans : 12) \n", permuteData(data));
 
   // backtracking + memoization : O( N!/f M)
   //  f = 2! 2! 2!  ..
-  
+
   data = {1, 1, 2, 2, 3, 3};
   printf("number of permutation: %d (ans : 90) \n", permuteData(data));
 }
-//leetcode : P(N, k)
-//leetcode : targetsum 
+// leetcode : P(N, k)
+// leetcode : targetsum
 
 class CPrefixScoreBase {
 public:
@@ -2170,15 +2555,14 @@ public:
 
 class CPrefixScore : public CPrefixScoreBase {
   class TrieNode {
-    public:
-      TrieNode *next[26];
-      int count;
-      TrieNode(): count(0)
-      {
-        for (int i = 0; i < 26; i++) {
-          next[i] = nullptr;
-        }
+  public:
+    TrieNode *next[26];
+    int count;
+    TrieNode() : count(0) {
+      for (int i = 0; i < 26; i++) {
+        next[i] = nullptr;
       }
+    }
   };
 
 public:
@@ -2190,7 +2574,7 @@ public:
       TrieNode *node = root;
       for (char ch : word) {
         if (!node->next[ch - 'a']) {
-          node->next[ch-'a'] = new TrieNode();
+          node->next[ch - 'a'] = new TrieNode();
         }
         node = node->next[ch - 'a'];
         node->count++;
