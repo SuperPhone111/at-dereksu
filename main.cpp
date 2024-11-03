@@ -16,7 +16,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 30;
+  int testID = 31;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -405,19 +405,131 @@ public:
   virtual void reset(int cap) {}
 };
 
+class DoublyLinkedListNode {
+  public:
+    int key;
+    int value;
+    DoublyLinkedListNode *prev;
+    DoublyLinkedListNode *next;
+
+    DoublyLinkedListNode(int key, int value) {
+      this->key = key;
+      this->value = value;
+      this->prev = nullptr;
+      this->next = nullptr;
+    }
+
+    void removeBindings() {
+      if (this->prev != nullptr) {
+        this->prev->next = this->next;
+      }
+      if (this->next != nullptr) {
+        this->next->prev = this->prev;
+      }
+      this->next = nullptr;
+      this->prev = nullptr;
+    }
+};
+
+class DoublyLinkedList {
+  public:
+    DoublyLinkedListNode* head;
+    DoublyLinkedListNode* tail;
+  
+    DoublyLinkedList() {
+      this->head = nullptr;
+      this->tail = nullptr;
+    }
+  
+    void setHead(DoublyLinkedListNode* node) {
+      if (this->head == node) {
+        return;
+      } else if (this->head == nullptr) {
+        this->head = node;
+        this->tail = node;
+      } else if (this->head == this->tail) {
+        this->tail->prev = node;
+        this->head = node;
+        this->head->next = this->tail;
+      } else {
+        if (this->tail == node) {
+          this->removeTail();
+        }
+        node->removeBindings();
+        this->head->prev = node;
+        node->next = this->head;
+        this->head = node;
+      }
+    }
+  
+    void removeTail() {
+      if (this->tail == nullptr) {
+        return;
+      }
+      if (this->tail == this->head) {
+        this->head = nullptr;
+        this->tail = nullptr;
+        return;
+      }
+      this->tail = this->tail->prev;
+      this->tail->next = nullptr;
+    }
+};
+
 class LRUCache : public LRUCacheBase {
 public:
-  LRUCache(int cap) { reset(cap); }
+  unordered_map<int, DoublyLinkedListNode*> cache;
+  int maxSize;
+  int currentSize;
+  DoublyLinkedList listOfMostRecent;
+
+  LRUCache(int cap) { 
+    reset(cap); 
+  }
 
   int get(int key) {
     // HW1103
-    return -1;
+    if (this->cache.find(key) == this->cache.end()) {
+      return -1;
+    }
+    this->updateMostRecent(this->cache[key]);
+    return this->cache[key]->value;
   }
   void put(int key, int value) {
     // HW1103
+    if (this->cache.find(key) == this->cache.end()) {
+      if (this->currentSize == this->maxSize) {
+       this->evictLeastRecent() ;
+      } else {
+        this->currentSize++;
+      }
+      this->cache[key] = new DoublyLinkedListNode(key, value);
+    } else {
+      this->replaceKey(key, value);
+    }
+    this->updateMostRecent(this->cache[key]);
   }
   void reset(int cap) {
     // HW1103
+    this->maxSize = cap > 1 ? cap : 1; 
+    this->currentSize = 0;
+    this->listOfMostRecent = DoublyLinkedList();
+  }
+
+private:
+  void updateMostRecent(DoublyLinkedListNode* node) {
+    this->listOfMostRecent.setHead(node);
+  }
+  void evictLeastRecent() {
+    int keyToRemove = this->listOfMostRecent.tail->key;
+    this->listOfMostRecent.removeTail();
+    this->cache.erase(keyToRemove);
+  }
+  void replaceKey(int key, int value) {
+    if (this->cache.find(key) == this->cache.end()) {
+      return;
+    }
+    this->cache[key]->value = value;
   }
 };
 
