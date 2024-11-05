@@ -172,13 +172,21 @@ public:
 };
 
 class MyCalendar : public MyCalendarBase {
+  map<int, int> events;
 public:
   bool book(int start, int end) {
-    // HW1003
+    // HW1103
     // suggested : std::map<> :: lower_bound(key)
     // https://www.geeksforgeeks.org/map-lower_bound-function-in-c-stl/
-
-    return false;
+    auto nextEvent = events.lower_bound(start);
+    if (nextEvent != events.end() && nextEvent->first < end) {
+      return false;
+    }
+    if (nextEvent != events.begin() && prev(nextEvent)->second > start) {
+      return false;
+    }
+    events[start] = end;
+    return true;
   }
 };
 
