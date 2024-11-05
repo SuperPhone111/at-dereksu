@@ -269,7 +269,14 @@ public:
 class CMergeInterval : public CMergeIntervalBase {
   vector<vector<int>> merge(vector<vector<int>> &intervals) {
     vector<vector<int>> merged;
-    // HW1003 (optional)
+    // HW1103 (optional)
+    for (auto &ir : intervals) {
+      if (merged.empty() || merged.back()[1] < ir[0]) {
+        merged.push_back(ir);
+      } else {
+        merged.back()[1] = max(merged.back()[1], ir[1]);
+      }
+    }
     return merged;
   }
 };
