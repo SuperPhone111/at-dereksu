@@ -411,6 +411,25 @@ void leetcode_merge_interval() {
   }
   printf("\n");
   printf("=>ans: [2, 4], [5, 5]\n\n\n");
+
+  printf("== case 6: before merge ==\n");
+  intervals.clear();
+  intervals.push_back({1, 4});
+  intervals.push_back({0, 4});
+
+  for (auto &ir : intervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  mergedIntervals = obj->merge(intervals);
+
+  printf("== after merge ==\n");
+  for (auto &ir : mergedIntervals) {
+    printf("[%d, %d] ", ir[0], ir[1]);
+  }
+  printf("\n");
+  printf("=>ans: [0, 4]\n\n\n");
+  
 }
 
 class LRUCacheBase {
