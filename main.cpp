@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
     leetcode_permutation();
     break;
   case 25:
-    //
+    //target
     break;
   //--- LinkedList / Hash Table --- //
   case 30:
@@ -173,6 +173,7 @@ public:
 
 class MyCalendar : public MyCalendarBase {
   map<int, int> events;
+
 public:
   bool book(int start, int end) {
     // HW1103
@@ -269,7 +270,8 @@ public:
 class CMergeInterval : public CMergeIntervalBase {
   vector<vector<int>> merge(vector<vector<int>> &intervals) {
     vector<vector<int>> merged;
-    // HW1103 (optional)
+    // HW1103 (optional) -
+    // HW1114 (debug)
     for (auto &ir : intervals) {
       if (merged.empty() || merged.back()[1] < ir[0]) {
         merged.push_back(ir);
@@ -429,7 +431,6 @@ void leetcode_merge_interval() {
   }
   printf("\n");
   printf("=>ans: [0, 4]\n\n\n");
-  
 }
 
 class LRUCacheBase {
@@ -440,86 +441,84 @@ public:
 };
 
 class DoublyLinkedListNode {
-  public:
-    int key;
-    int value;
-    DoublyLinkedListNode *prev;
-    DoublyLinkedListNode *next;
+public:
+  int key;
+  int value;
+  DoublyLinkedListNode *prev;
+  DoublyLinkedListNode *next;
 
-    DoublyLinkedListNode(int key, int value) {
-      this->key = key;
-      this->value = value;
-      this->prev = nullptr;
-      this->next = nullptr;
-    }
+  DoublyLinkedListNode(int key, int value) {
+    this->key = key;
+    this->value = value;
+    this->prev = nullptr;
+    this->next = nullptr;
+  }
 
-    void removeBindings() {
-      if (this->prev != nullptr) {
-        this->prev->next = this->next;
-      }
-      if (this->next != nullptr) {
-        this->next->prev = this->prev;
-      }
-      this->next = nullptr;
-      this->prev = nullptr;
+  void removeBindings() {
+    if (this->prev != nullptr) {
+      this->prev->next = this->next;
     }
+    if (this->next != nullptr) {
+      this->next->prev = this->prev;
+    }
+    this->next = nullptr;
+    this->prev = nullptr;
+  }
 };
 
 class DoublyLinkedList {
-  public:
-    DoublyLinkedListNode* head;
-    DoublyLinkedListNode* tail;
-  
-    DoublyLinkedList() {
+public:
+  DoublyLinkedListNode *head;
+  DoublyLinkedListNode *tail;
+
+  DoublyLinkedList() {
+    this->head = nullptr;
+    this->tail = nullptr;
+  }
+
+  void setHead(DoublyLinkedListNode *node) {
+    if (this->head == node) {
+      return;
+    } else if (this->head == nullptr) {
+      this->head = node;
+      this->tail = node;
+    } else if (this->head == this->tail) {
+      this->tail->prev = node;
+      this->head = node;
+      this->head->next = this->tail;
+    } else {
+      if (this->tail == node) {
+        this->removeTail();
+      }
+      node->removeBindings();
+      this->head->prev = node;
+      node->next = this->head;
+      this->head = node;
+    }
+  }
+
+  void removeTail() {
+    if (this->tail == nullptr) {
+      return;
+    }
+    if (this->tail == this->head) {
       this->head = nullptr;
       this->tail = nullptr;
+      return;
     }
-  
-    void setHead(DoublyLinkedListNode* node) {
-      if (this->head == node) {
-        return;
-      } else if (this->head == nullptr) {
-        this->head = node;
-        this->tail = node;
-      } else if (this->head == this->tail) {
-        this->tail->prev = node;
-        this->head = node;
-        this->head->next = this->tail;
-      } else {
-        if (this->tail == node) {
-          this->removeTail();
-        }
-        node->removeBindings();
-        this->head->prev = node;
-        node->next = this->head;
-        this->head = node;
-      }
-    }
-  
-    void removeTail() {
-      if (this->tail == nullptr) {
-        return;
-      }
-      if (this->tail == this->head) {
-        this->head = nullptr;
-        this->tail = nullptr;
-        return;
-      }
-      this->tail = this->tail->prev;
-      this->tail->next = nullptr;
-    }
+    this->tail = this->tail->prev;
+    this->tail->next = nullptr;
+  }
 };
 
 class LRUCache : public LRUCacheBase {
 public:
-  unordered_map<int, DoublyLinkedListNode*> cache;
+  unordered_map<int, DoublyLinkedListNode *> cache;
   int maxSize;
   int currentSize;
   DoublyLinkedList listOfMostRecent;
 
-  LRUCache(int cap) { 
-    reset(cap); 
-  }
+  LRUCache(int cap) { reset(cap); }
 
   int get(int key) {
     // HW1103
@@ -533,7 +532,7 @@ public:
     // HW1103
     if (this->cache.find(key) == this->cache.end()) {
       if (this->currentSize == this->maxSize) {
-       this->evictLeastRecent() ;
+        this->evictLeastRecent();
       } else {
         this->currentSize++;
       }
@@ -545,13 +544,13 @@ public:
   }
   void reset(int cap) {
     // HW1103
-    this->maxSize = cap > 1 ? cap : 1; 
+    this->maxSize = cap > 1 ? cap : 1;
     this->currentSize = 0;
     this->listOfMostRecent = DoublyLinkedList();
   }
 
 private:
-  void updateMostRecent(DoublyLinkedListNode* node) {
+  void updateMostRecent(DoublyLinkedListNode *node) {
     this->listOfMostRecent.setHead(node);
   }
   void evictLeastRecent() {
@@ -566,6 +565,188 @@ private:
     this->cache[key]->value = value;
   }
 };
+
+class LRUCacheVK : public LRUCacheBase {
+public:
+  LRUCacheVK(int cap) { reset(cap); }
+  int get(int key) {
+    // if key exists
+    //     //append w/ key
+    //     //remove data w /idx
+    // otherwise, return -1
+
+    if (idxMap.find(key) == idxMap.end())
+      return -1;
+
+    int idx = idxMap[key];
+    int val = data[idx].second;
+
+    append(key, val);
+    erase(idx);
+    return val;
+  }
+
+  void append(int key, int value) {
+    data.push_back(make_pair(key, value));
+    int MRUidx = data.size() - 1;
+    nextMap[MRUidx - 1] = MRUidx;
+    prevMap[MRUidx] = MRUidx - 1;
+    idxMap[key] = MRUidx;
+  }
+  void erase(int idx) {
+    // clear data[idx]
+    int prevIdx = prevMap[idx];
+    int nextIdx = nextMap[idx];
+    nextMap[prevIdx] = nextIdx;
+    prevMap[nextIdx] = prevIdx;
+    if (idx == LRUidx) {
+      LRUidx = nextMap[idx];
+      prevMap.erase(prevMap.find(idx));
+      nextMap.erase(nextMap.find(idx));
+    }
+  }
+
+  void put(int key, int value) {
+    /*
+     if key exist
+        idx = idxMap[key]
+
+        //append data w/ key
+        append (key, val) to data
+        MURidx = data.size()-1
+        next[MRUidx-1] = MRUidx
+        prev[MRUidx] = MRUidx -1
+        update idxMap to MRUidx
+
+        //remove data @idx
+        celar data[idx]
+        prevIdx = prevMap[idx], nextIdx= nextMap[idx]
+        nextMap[prevIdx] = nextIdx
+        prevMap[nextIdx] = prevIdx
+
+        if idx == LRUidx
+          update LRUidx = nextMap[idx]
+
+        =>remove prevMap[idx], nextMap[idx]
+
+
+     otherwise, // key ! exist
+        //append data w/ key
+        //check capacity
+        fullness++
+        if fullness > capacity
+           update LRUidx = nextMap[LRUidx]
+           => remove data@LRUidx, idMap[LRUidx]
+           fullness--
+
+    */
+    if (idxMap.find(key) != idxMap.end()) {
+      int idx = idxMap[key];
+      append(key, value);
+      erase(idx);
+    } else {
+      append(key, value);
+      fullness++;
+      if (fullness > capacity) {
+        idxMap.erase(data[LRUidx].first);
+        erase(LRUidx);
+        fullness--;
+      }
+    }
+  }
+
+  void reset(int cap) {
+    capacity = cap;
+    fullness = 0;
+
+    data.clear();
+    idxMap.clear();
+    prevMap.clear();
+    nextMap.clear();
+
+    prevMap[0] = -1;
+    nextMap[-1] = 0;
+
+    LRUidx = 0;
+  }
+
+private:
+  int capacity;
+  int fullness;
+  int LRUidx; // idx@data, idx is LRU
+
+  vector<pair<int, int>> data;     // <key, value>
+  unordered_map<int, int> idxMap;  // <key, idx @ data>
+  unordered_map<int, int> prevMap; // <idx @ data, previous idx @data>
+  unordered_map<int, int> nextMap; // <idx @ data, next idx@ data>
+};
+
+/*
+capcity = 3
+
+data<1, 1> <- LRU, MRU
+
+===
+data<1, 1> <- LRU, 
+data<2, 2> <-- MRU
+
+===
+data<1, 1> <- LRU, 
+data<2, 2> 
+data<3, 3> <-- MRU
+
+===
+data<1, 1> X
+data<2, 2> <- LRU
+data<3, 3>
+data<4, 4> <-- MRU
+
+==
+get(1) = -1
+== 
+get(2)?
+
+data<1, 1> X
+data<2, 2> X
+data<3, 3> <- LRU
+data<4, 4> 
+data<2, 2> <- MRU
+===
+get(4)?
+
+data<1, 1> X
+data<2, 2> X
+data<3, 3> <- LRU
+data<4, 4> X
+data<2, 2> 
+data<4, 4> <- MRU
+
+===
+put(2, 5)
+
+data<1, 1> X
+data<2, 2> X
+data<3, 3> <- LRU
+data<4, 4> X
+data<2, 2> X 
+data<4, 4> 
+data<2, 5> <- MRU
+
+===
+get (3)
+
+data<1, 1> X
+data<2, 2> X
+data<3, 3> X 
+data<4, 4> X
+data<2, 2> X 
+data<4, 4> <- LRU
+data<2, 5>
+data<3, 3> <- MRU
+
+
+
+*/
 
 void leetcode_LRU_cache() {
   /*
@@ -617,15 +798,19 @@ void leetcode_LRU_cache() {
   */
 
   LRUCache objOOne(2);
+  LRUCacheVK objVK(2);
   LRUCacheBase *obj;
 
   enum IMPLT_ID_ {
-    IMPLT_OONE, // O(1)
+    IMPLT_OONE = 0, // O(1)
+    IMPLT_LUT,      // O(1)
   };
 
-  int impltID = IMPLT_OONE;
+  int impltID = IMPLT_LUT;
   if (impltID == IMPLT_OONE) {
     obj = &objOOne;
+  } else if (impltID == IMPLT_LUT) {
+    obj = &objVK;
   } else {
     printf("not a supported implementation");
     exit(-1);
@@ -2924,3 +3109,4 @@ void leetcode_prefix_score() {
   printf("\n");
   printf("ans : 5, 4, 3, 2\n");
 }
+ 
