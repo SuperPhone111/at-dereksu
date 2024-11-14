@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
     leetcode_permutation();
     break;
   case 25:
-    //target
+    leetcode_targetSum();
     break;
   //--- LinkedList / Hash Table --- //
   case 30:
@@ -126,6 +126,90 @@ int main(int argc, char **argv) {
   // dynamic programming
   // ordering conflict
   // tricky problems
+}
+
+class CSolTargetSumBase {
+
+public:
+  virtual int findTargetSumWays(vector<int> &nums, int target) { return -1; }
+};
+
+class CSolTargetSum : public CSolTargetSumBase {
+
+public:
+  int findTargetSumWays(vector<int> &nums, int target) {
+    // HW1114
+    return -1;
+  }
+};
+
+void leetcode_targetSum() {
+
+  // HW1114
+  //  https://leetcode.com/problems/target-sum/description/
+
+  /*
+  You are given an integer array nums and an integer target.
+
+  You want to build an expression out of nums by adding one of the symbols '+'
+  and '-' before each integer in nums and then concatenate all the integers.
+
+  For example, if nums = [2, 1], you can add a '+' before 2 and a '-' before 1
+  and concatenate them to build the expression "+2-1". Return the number of
+  different expressions that you can build, which evaluates to target.
+
+
+
+  Example 1:
+
+  Input: nums = [1,1,1,1,1], target = 3
+  Output: 5
+  Explanation: There are 5 ways to assign symbols to make the sum of nums be
+  target 3. -1 + 1 + 1 + 1 + 1 = 3 +1 - 1 + 1 + 1 + 1 = 3 +1 + 1 - 1 + 1 + 1 = 3
+  +1 + 1 + 1 - 1 + 1 = 3
+  +1 + 1 + 1 + 1 - 1 = 3
+  Example 2:
+
+  Input: nums = [1], target = 1
+  Output: 1
+
+
+  Constraints:
+
+  1 <= nums.length <= 20
+  0 <= nums[i] <= 1000
+  0 <= sum(nums[i]) <= 1000
+  -1000 <= target <= 1000
+  */
+  CSolTargetSum solDerived;
+  CSolTargetSumBase *sol;
+
+  sol = &solDerived;
+
+  int res;
+  vector<int> nums;
+  int target;
+
+  printf("-- case 0 --\n");
+  nums = {1, 1, 1, 1, 1};
+  target = 3;
+  res = sol->findTargetSumWays(nums, target);
+  printf("res = %d (ans : 5)\n", res);
+
+  printf("-- case 1 --\n");
+
+  nums = {1, 0};
+  target = 1;
+  res = sol->findTargetSumWays(nums, target);
+  printf("res = %d (ans : 2)\n", res);
+
+  printf("-- case 2 --\n");
+
+  nums = {0, 0, 0, 0, 0, 0, 0, 0, 1};
+  target = 1;
+
+  res = sol->findTargetSumWays(nums, target);
+  printf("res = %d (and : 256)\n", res);
 }
 
 void basic_map_usage() {
@@ -687,12 +771,12 @@ capcity = 3
 data<1, 1> <- LRU, MRU
 
 ===
-data<1, 1> <- LRU, 
+data<1, 1> <- LRU,
 data<2, 2> <-- MRU
 
 ===
-data<1, 1> <- LRU, 
-data<2, 2> 
+data<1, 1> <- LRU,
+data<2, 2>
 data<3, 3> <-- MRU
 
 ===
@@ -703,13 +787,13 @@ data<4, 4> <-- MRU
 
 ==
 get(1) = -1
-== 
+==
 get(2)?
 
 data<1, 1> X
 data<2, 2> X
 data<3, 3> <- LRU
-data<4, 4> 
+data<4, 4>
 data<2, 2> <- MRU
 ===
 get(4)?
@@ -718,7 +802,7 @@ data<1, 1> X
 data<2, 2> X
 data<3, 3> <- LRU
 data<4, 4> X
-data<2, 2> 
+data<2, 2>
 data<4, 4> <- MRU
 
 ===
@@ -728,8 +812,8 @@ data<1, 1> X
 data<2, 2> X
 data<3, 3> <- LRU
 data<4, 4> X
-data<2, 2> X 
-data<4, 4> 
+data<2, 2> X
+data<4, 4>
 data<2, 5> <- MRU
 
 ===
@@ -737,9 +821,9 @@ get (3)
 
 data<1, 1> X
 data<2, 2> X
-data<3, 3> X 
+data<3, 3> X
 data<4, 4> X
-data<2, 2> X 
+data<2, 2> X
 data<4, 4> <- LRU
 data<2, 5>
 data<3, 3> <- MRU
@@ -3109,4 +3193,3 @@ void leetcode_prefix_score() {
   printf("\n");
   printf("ans : 5, 4, 3, 2\n");
 }
- 
