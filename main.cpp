@@ -135,11 +135,32 @@ public:
 };
 
 class CSolTargetSum : public CSolTargetSumBase {
-
+  int g_target;
+  unordered_map<int, int> memo;
 public:
   int findTargetSumWays(vector<int> &nums, int target) {
     // HW1114
-    return -1;
+    this->g_target = target;
+    memo.clear();
+    int ans = backtrack(nums, 0, 0);
+    return ans;
+  }
+
+  int backtrack(vector<int> &nums, int idx, int curr_sum) {
+    int hash = (idx << 12) + curr_sum;
+    if (memo.count(hash)) {
+      return memo[hash];
+    }
+    if (curr_sum == g_target && idx == nums.size()) {
+      return 1;
+    } else if (idx >= nums.size()) {
+      return 0;
+    }
+
+    int res1 = backtrack(nums, idx + 1, curr_sum + nums[idx]);
+    int res2 = backtrack(nums, idx + 1, curr_sum - nums[idx]);
+    memo[hash] = res1 + res2;
+    return memo[hash];
   }
 };
 
@@ -696,8 +717,11 @@ public:
         idx = idxMap[key]
 
         //append data w/ key
+        //  next -> _____
+        //  prev <-| MRU |
+        //
         append (key, val) to data
-        MURidx = data.size()-1
+        MRUidx = data.size()-1
         next[MRUidx-1] = MRUidx
         prev[MRUidx] = MRUidx -1
         update idxMap to MRUidx
