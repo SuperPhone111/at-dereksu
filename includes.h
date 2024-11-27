@@ -29,3 +29,5 @@ void leetcode_merge_interval();
 void leetcode_my_calendar();
 void basic_map_usage();
 void leetcode_targetSum();
+void leetcode_lonest_substring_without_repeating();
+void leetcode_largest_rectangular();

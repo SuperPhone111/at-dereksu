@@ -98,6 +98,9 @@ int main(int argc, char **argv) {
   case 25:
     leetcode_targetSum();
     break;
+  //LCS
+  //3Sum
+    
   //--- LinkedList / Hash Table --- //
   case 30:
     leetcode_prefix_score();
@@ -115,6 +118,18 @@ int main(int argc, char **argv) {
   case 34:
     basic_map_usage();
     break;
+  //meeting room 3
+
+  //FSM
+  case 35:
+    leetcode_lonest_substring_without_repeating();
+    break;
+  //---- tricky question -----
+  case 36:
+    leetcode_largest_rectangular();
+    break;
+  //maximum retangle
+  
 
   default:
     printf("not a supported testID %d\n", testID);
@@ -127,6 +142,113 @@ int main(int argc, char **argv) {
   // ordering conflict
   // tricky problems
 }
+
+class CLargestRectangleBase {
+public:
+  virtual int largestRectangleArea(vector<int>& heights) { return -1; }
+};
+
+class CMLargestRectangleDerived : public CLargestRectangleBase {
+public:
+  int largestRectangleArea(vector<int>& heights) { 
+    //TBD
+    return -1;
+  }
+};
+
+
+void leetcode_largest_rectangular() {
+  // https://leetcode.com/problems/largest-rectangle-in-histogram/description/
+
+  CMLargestRectangleDerived solDerived;
+  CLargestRectangleBase *sol = &solDerived;
+
+  vector<int> heights({2, 1, 5, 6, 2, 3});
+  int area = sol->largestRectangleArea(heights);
+  printf("area1 = %d (10)\n", area);
+
+  heights = {2, 4};
+  area = sol->largestRectangleArea(heights);
+  printf("area2 = %d (4)\n", area);
+
+  heights = {9, 0};
+  area = sol->largestRectangleArea(heights);
+  printf("area3 = %d(9)\n", area);
+
+  heights = {0, 9};
+  area = sol->largestRectangleArea(heights);
+  printf("area4 = %d (9)\n", area);
+
+  heights = {2, 1, 2};
+  area = sol->largestRectangleArea(heights);
+  printf("area5 = %d (3)\n", area);
+
+  heights = {2, 0, 2};
+  area = sol->largestRectangleArea(heights);
+  printf("area6 = %d (2)\n", area);
+
+  heights = {1, 1};
+  area = sol->largestRectangleArea(heights);
+  printf("area7 = %d (2)\n", area);
+}
+
+
+int lengthOfLongestSubstring(string s) {
+  //TBD
+  return -1;
+}
+
+void leetcode_lonest_substring_without_repeating()
+{
+  // https://leetcode.com/problems/longest-substring-without-repeating-characters/description/
+
+  /*
+  Given a string s, find the length of the longest 
+substring
+ without repeating characters.
+
+
+
+Example 1:
+
+Input: s = "abcabcbb"
+Output: 3
+Explanation: The answer is "abc", with the length of 3.
+Example 2:
+
+Input: s = "bbbbb"
+Output: 1
+Explanation: The answer is "b", with the length of 1.
+Example 3:
+
+Input: s = "pwwkew"
+Output: 3
+Explanation: The answer is "wke", with the length of 3.
+Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.
+
+
+Constraints:
+
+0 <= s.length <= 5 * 104
+s consists of English letters, digits, symbols and spaces.
+
+  */
+ string in;
+
+ in = "abcabcbb";
+ printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
+
+ in = "bbbbb";
+ printf("res= %d (ans: 1)\n", lengthOfLongestSubstring(in));
+
+ in = "pwwkew";
+ printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
+
+
+
+}
+
+
 
 class CSolTargetSumBase {
 
