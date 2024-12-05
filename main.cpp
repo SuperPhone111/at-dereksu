@@ -16,7 +16,7 @@
 using namespace std;
 
 int main(int argc, char **argv) {
-  int testID = 31;
+  int testID = 25;
 
   if (argc < 2) {
     printf("use default testID %d\n", testID);
@@ -98,8 +98,8 @@ int main(int argc, char **argv) {
   case 25:
     leetcode_targetSum();
     break;
-  //LCS
-  //3Sum
+  //LCS- longest Common Subsequence
+  //3Sum - 
     
   //--- LinkedList / Hash Table --- //
   case 30:
@@ -151,7 +151,8 @@ public:
 class CMLargestRectangleDerived : public CLargestRectangleBase {
 public:
   int largestRectangleArea(vector<int>& heights) { 
-    //HW1114
+    //HW1114 //HW1205
+    
     return -1;
   }
 };
@@ -192,10 +193,119 @@ void leetcode_largest_rectangular() {
   printf("area7 = %d (2)\n", area);
 }
 
+bool checkRepeat(string s, int startIdx, int endIdx){
+  unordered_set<char> charSet;
+  bool hasRepeated = false;
+
+  for(int i= startIdx; i<= endIdx; i++){
+    if(charSet.find(s[i]) != charSet.end()){
+      hasRepeated = true;
+      break;
+    }
+    else{
+      charSet.insert(s[i]);      
+    }
+  }
+
+
+  return hasRepeated;
+
+  
+}
 
 int lengthOfLongestSubstring(string s) {
   //HW1114
-  return -1;
+
+  // state 0 : (init)
+  //   startIdx =0
+  //   endIDx = 0;
+  //   go to state 1;
+  // state 1: (increase)
+  //  endIdx++; //handle the exit conidtion
+  //  if repeated char
+  //      endIdx --;
+  //      go to state 2 (shift)
+  //  otherwise:
+  //      go to state 1 (increase)
+  // state 2: (shift)
+  //  startIdx ++;
+  //  endIdx ++; //handle the exit condition
+  //  if repeaed char
+  //     go to state 2 (shift)
+  //  otherwise:
+  //     go to state 1 (increase)
+  // state 3: (exit)
+
+  enum _STATE_ID
+  {
+    S_INIT =0,
+    S_INCREASE,
+    S_SHIFT,
+    S_EXIT,  
+  };
+
+  int state = S_INIT;
+  int startIdx, endIdx;
+  while(state!= S_EXIT){
+
+    switch(state){
+      case S_INIT:
+        {
+          startIdx =0; endIdx = 0;
+          state = S_INCREASE;
+           break; 
+        }
+      case S_INCREASE:
+        {
+          //  endIdx++; //handle the exit conidtion
+          //  if repeated char
+          //      endIdx --;
+          //      go to state 2 (shift)
+          //  otherwise:
+          //      go to state 1 (increase)
+          endIdx++;
+          if(endIdx == s.size()){
+            endIdx --;
+            state = S_EXIT;
+            break;
+          }
+          
+          if(checkRepeat(s, startIdx, endIdx)){
+            endIdx--;
+            state = S_SHIFT;
+          }
+          else state = S_INCREASE;
+          
+          break;
+        }
+      case S_SHIFT:
+        {
+          startIdx++; endIdx++;
+          if(endIdx == s.size()){
+            startIdx--; endIdx--;
+            state = S_EXIT;
+            break;
+          }
+          
+          if(checkRepeat(s, startIdx, endIdx)) state = S_SHIFT;
+          else state= S_INCREASE;          
+          break;
+        }
+      default:
+        {
+        printf("not a supported state = %d\n", state);
+        exit(-1);
+        }
+    }
+
+    
+  }
+
+
+
+  
+  
+  return endIdx-startIdx+1;
 }
 
 void leetcode_lonest_substring_without_repeating()
@@ -255,6 +365,60 @@ class CSolTargetSumBase {
 public:
   virtual int findTargetSumWays(vector<int> &nums, int target) { return -1; }
 };
+
+// f(a, b, c | sum )= f(a, b | sum-c) + f(a, b | sum+c)
+//                    ^^^^^^^^^^^^^^^
+//            f(a | sum-c-b) + f(a | sum-c+b)
+//            ^^^^^^^^^^^^^^
+// f( {} | sum-c-b-a) + f( {} | sum-c-b+a)
+
+#define TARGETSUM_MEMO 1
+
+class CSolTargetVK: public CSolTargetSumBase {
+
+public:
+  int findTargetSumWays(vector<int> &nums, int target) {
+    
+    return getNumWays(nums, nums.size() ,target); 
+  }
+
+private:
+  int getNumWays(vector<int> nums, int len, int target){
+    //exception
+    if(len== 0) return (target==0)?1:0;
+
+    //general
+#if TARGETSUM_MEMO
+    string keyStr = getHashKey(target, nums, len);
+    if(numsLUT.find(keyStr) != numsLUT.end()){
+      return numsLUT[keyStr];
+    }
+#endif
+  
+#if TARGETSUM_MEMO
+    return numsLUT[keyStr]=
+      getNumWays(nums, len-1, target-nums[len-1]) + getNumWays(nums, len-1, target+ nums[len-1]);
+#else
+    return getNumWays(nums, len-1, target-nums[len-1]) + getNumWays(nums, len-1, target+ nums[len-1]);
+#endif
+    
+  }
+
+#if TARGETSUM_MEMO
+
+  string getHashKey(int sum, vector<int>& nums, int len){
+    stringstream ss;
+    for(int i=0; i< len; i++) ss << nums[i] << "_";
+    ss << "|" << sum;
+    return ss.str();
+    
+  }
+private:
+unordered_map<string, int> numsLUT; //combination, numways
+#endif
+
+};
+
 
 class CSolTargetSum : public CSolTargetSumBase {
   int g_target;
@@ -325,9 +489,11 @@ void leetcode_targetSum() {
   -1000 <= target <= 1000
   */
   CSolTargetSum solDerived;
+  CSolTargetVK solVK;
   CSolTargetSumBase *sol;
 
-  sol = &solDerived;
+  //sol = &solDerived;
+  sol = &solVK;
 
   int res;
   vector<int> nums;
@@ -498,7 +664,7 @@ class CMergeInterval : public CMergeIntervalBase {
   vector<vector<int>> merge(vector<vector<int>> &intervals) {
     vector<vector<int>> merged;
     // HW1103 (optional) -
-    // HW1114 (debug)
+    // HW1114 (debug) HW1205
     for (auto &ir : intervals) {
       if (merged.empty() || merged.back()[1] < ir[0]) {
         merged.push_back(ir);
