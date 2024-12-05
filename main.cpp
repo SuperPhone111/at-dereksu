@@ -665,8 +665,10 @@ class CMergeInterval : public CMergeIntervalBase {
     vector<vector<int>> merged;
     // HW1103 (optional) -
     // HW1114 (debug) HW1205
+
+    sort(intervals.begin(), intervals.end());
     for (auto &ir : intervals) {
-      if (merged.empty() || merged.back()[1] < ir[0]) {
+      if (merged.empty() || merged.back()[1] < ir[0]) { // no overlap
         merged.push_back(ir);
       } else {
         merged.back()[1] = max(merged.back()[1], ir[1]);
