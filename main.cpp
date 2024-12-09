@@ -152,8 +152,24 @@ class CMLargestRectangleDerived : public CLargestRectangleBase {
 public:
   int largestRectangleArea(vector<int>& heights) { 
     //HW1114 //HW1205
-    
-    return -1;
+    vector<int> stack;
+    int maxArea = 0;
+
+    vector<int> extendedBuilding(heights);
+    extendedBuilding.push_back(0);
+
+    for (int i = 0; i < extendedBuilding.size(); i++) {
+      int nextBuildingHeight = extendedBuilding[i];
+      // extendedBuilding[stack.back()] is current building height
+      while (!stack.empty() && extendedBuilding[stack.back()] >= nextBuildingHeight) {
+        int height = extendedBuilding[stack.back()];
+        stack.pop_back();
+        int width = stack.empty() ? i : i - stack.back() - 1;
+        maxArea = max(maxArea, height * width);
+      }
+      stack.push_back(i);
+    }
+    return maxArea;
   }
 };
 
@@ -174,7 +190,7 @@ void leetcode_largest_rectangular() {
 
   heights = {9, 0};
   area = sol->largestRectangleArea(heights);
-  printf("area3 = %d(9)\n", area);
+  printf("area3 = %d (9)\n", area);
 
   heights = {0, 9};
   area = sol->largestRectangleArea(heights);
