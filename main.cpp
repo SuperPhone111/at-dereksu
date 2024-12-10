@@ -98,9 +98,9 @@ int main(int argc, char **argv) {
   case 25:
     leetcode_targetSum();
     break;
-  //LCS- longest Common Subsequence
-  //3Sum - 
-    
+  // LCS- longest Common Subsequence
+  // 3Sum -
+
   //--- LinkedList / Hash Table --- //
   case 30:
     leetcode_prefix_score();
@@ -118,9 +118,12 @@ int main(int argc, char **argv) {
   case 34:
     basic_map_usage();
     break;
-  //meeting room 3
+  // meeting room 3
+  case 350:
+    leetcode_meeting_room_iii();
+    break;
 
-  //FSM
+  // FSM
   case 35:
     leetcode_lonest_substring_without_repeating();
     break;
@@ -128,8 +131,7 @@ int main(int argc, char **argv) {
   case 36:
     leetcode_largest_rectangular();
     break;
-  //maximum retangle
-  
+    // maximum retangle
 
   default:
     printf("not a supported testID %d\n", testID);
@@ -143,15 +145,164 @@ int main(int argc, char **argv) {
   // tricky problems
 }
 
+class CMeetingRoom3Base {
+public:
+  virtual int mostBooked(int n, vector<vector<int>> &meetings) { return -1; }
+};
+
+class CMeetingRoom3Derived : public CMeetingRoom3Base {
+public:
+  int mostBooked(int n, vector<vector<int>> &meetings) {
+    // HW1205
+    return -1;
+  }
+};
+
+void leetcode_meeting_room_iii() {
+  // HW1205
+
+  /*
+
+  https://leetcode.com/problems/meeting-rooms-iii/description/
+
+  You are given an integer n. There are n rooms numbered from 0 to n - 1.
+
+  You are given a 2D integer array meetings where meetings[i] = [starti, endi]
+  means that a meeting will be held during the half-closed time interval
+  [starti, endi). All the values of starti are unique.
+
+  Meetings are allocated to rooms in the following manner:
+
+  Each meeting will take place in the unused room with the lowest number.
+  If there are no available rooms, the meeting will be delayed until a room
+  becomes free.
+  The delayed meeting should have the same duration as the original meeting.
+  When a room becomes unused, meetings that have an earlier original start time
+  should be given the room.
+  Return the number of the room that held the most meetings. If there are
+  multiple rooms, return the room with the lowest number.
+
+  A half-closed interval [a, b) is the interval between a and b including a and
+  not including b.
+
+
+
+  Example 1:
+
+  Input: n = 2, meetings = [[0,10],[1,5],[2,7],[3,4]]
+  Output: 0
+  Explanation:
+  - At time 0, both rooms are not being used. The first meeting starts in room
+  0.
+  - At time 1, only room 1 is not being used. The second meeting starts in
+  room 1.
+  - At time 2, both rooms are being used. The third meeting is delayed.
+  - At time 3, both rooms are being used. The fourth meeting is delayed.
+  - At time 5, the meeting in room 1 finishes. The third meeting starts in room
+  1 for the time period [5,10).
+  - At time 10, the meetings in both rooms finish. The fourth meeting starts in
+  room 0 for the time period [10,11). Both rooms 0 and 1 held 2 meetings, so we
+  return 0.
+
+  Example 2:
+
+  Input: n = 3, meetings = [[1,20],[2,10],[3,5],[4,9],[6,8]]
+  Output: 1
+  Explanation:
+  - At time 1, all three rooms are not being used. The first meeting starts in
+  room 0.
+  - At time 2, rooms 1 and 2 are not being used. The second meeting starts in
+  room 1.
+  - At time 3, only room 2 is not being used. The third meeting starts in
+  room 2.
+  - At time 4, all three rooms are being used. The fourth meeting is delayed.
+  - At time 5, the meeting in room 2 finishes. The fourth meeting starts in room
+  2 for the time period [5,10).
+  - At time 6, all three rooms are being used. The fifth meeting is delayed.
+  - At time 10, the meetings in rooms 1 and 2 finish. The fifth meeting starts
+  in room 1 for the time period [10,12). Room 0 held 1 meeting while rooms 1 and
+  2 each held 2 meetings, so we return 1.
+
+  Constraints:
+
+  1 <= n <= 100
+  1 <= meetings.length <= 10^5
+  meetings[i].length == 2
+  0 <= starti < endi <= 5 * 10^5
+  All the values of starti are unique.
+
+  */
+  CMeetingRoom3Base *obj;
+  CMeetingRoom3Derived objDerived;
+  obj = &objDerived;
+
+  int n;
+  vector<vector<int>> meetings;
+  int mostUsedRoom;
+
+  // case 4: n=4, [[19,20],[14,15],[13,14],[11,20]], output = 1
+  n = 4;
+  meetings.push_back(vector<int>({19, 20}));
+  meetings.push_back(vector<int>({14, 15}));
+  meetings.push_back(vector<int>({13, 14}));
+  meetings.push_back(vector<int>({11, 20}));
+  mostUsedRoom = obj->mostBooked(n, meetings);
+  printf("Case 4: most used room no (1): %d\n", mostUsedRoom);
+  meetings.clear();
+
+  // Case 1: n = 2, meetings = [[0,10],[1,5],[2,7],[3,4]] output =0
+  n = 2;
+  meetings.push_back(vector<int>({0, 10}));
+  meetings.push_back(vector<int>({1, 5}));
+  meetings.push_back(vector<int>({2, 7}));
+  meetings.push_back(vector<int>({3, 4}));
+  mostUsedRoom = obj->mostBooked(n, meetings);
+  printf("Case 1: most used room no (0): %d\n", mostUsedRoom);
+  meetings.clear();
+
+  // Case 2: n = 4, meetings = [[18,19],[3,12],[17,19],[2,13],[7,10]] , output =
+  // 0
+  n = 4;
+  meetings.push_back(vector<int>({18, 19}));
+  meetings.push_back(vector<int>({3, 12}));
+  meetings.push_back(vector<int>({17, 19}));
+  meetings.push_back(vector<int>({2, 13}));
+  meetings.push_back(vector<int>({7, 10}));
+  mostUsedRoom = obj->mostBooked(n, meetings);
+  printf("Case 2: most used room no (0): %d\n", mostUsedRoom);
+  meetings.clear();
+
+  // case 3: n= 2, [[10,11],[2,10],[1,17],[9,13],[18,20]], output = 1
+  n = 2;
+  meetings.push_back(vector<int>({10, 11}));
+  meetings.push_back(vector<int>({2, 10}));
+  meetings.push_back(vector<int>({1, 17}));
+  meetings.push_back(vector<int>({9, 13}));
+  meetings.push_back(vector<int>({18, 20}));
+  mostUsedRoom = obj->mostBooked(n, meetings);
+  printf("Case 3: most used room no (1) : %d\n", mostUsedRoom);
+  meetings.clear();
+
+  // case 5: n= 2, [[0,10],[1,5],[2,7],[3,4]]
+  n = 2;
+  meetings.push_back(vector<int>({0, 10}));
+  meetings.push_back(vector<int>({1, 5}));
+  meetings.push_back(vector<int>({2, 7}));
+  meetings.push_back(vector<int>({3, 4}));
+  mostUsedRoom = obj->mostBooked(n, meetings);
+  printf("Case 5: most used room no (0): %d\n", mostUsedRoom);
+  meetings.clear();
+}
+
 class CLargestRectangleBase {
 public:
-  virtual int largestRectangleArea(vector<int>& heights) { return -1; }
+  virtual int largestRectangleArea(vector<int> &heights) { return -1; }
 };
 
 class CMLargestRectangleDerived : public CLargestRectangleBase {
 public:
-  int largestRectangleArea(vector<int>& heights) { 
-    //HW1114 //HW1205
+  int largestRectangleArea(vector<int> &heights) {
+    // HW1114 //HW1205
     vector<int> stack;
     int maxArea = 0;
 
@@ -161,7 +312,8 @@ public:
     for (int i = 0; i < extendedBuilding.size(); i++) {
       int nextBuildingHeight = extendedBuilding[i];
       // extendedBuilding[stack.back()] is current building height
-      while (!stack.empty() && extendedBuilding[stack.back()] >= nextBuildingHeight) {
+      while (!stack.empty() &&
+             extendedBuilding[stack.back()] >= nextBuildingHeight) {
         int height = extendedBuilding[stack.back()];
         stack.pop_back();
         int width = stack.empty() ? i : i - stack.back() - 1;
@@ -172,7 +324,6 @@ public:
     return maxArea;
   }
 };
-
 
 void leetcode_largest_rectangular() {
   // https://leetcode.com/problems/largest-rectangle-in-histogram/description/
@@ -209,28 +360,24 @@ void leetcode_largest_rectangular() {
   printf("area7 = %d (2)\n", area);
 }
 
-bool checkRepeat(string s, int startIdx, int endIdx){
+bool checkRepeat(string s, int startIdx, int endIdx) {
   unordered_set<char> charSet;
   bool hasRepeated = false;
 
-  for(int i= startIdx; i<= endIdx; i++){
-    if(charSet.find(s[i]) != charSet.end()){
+  for (int i = startIdx; i <= endIdx; i++) {
+    if (charSet.find(s[i]) != charSet.end()) {
       hasRepeated = true;
       break;
-    }
-    else{
-      charSet.insert(s[i]);      
+    } else {
+      charSet.insert(s[i]);
     }
   }
 
-
   return hasRepeated;
-
-  
 }
 
 int lengthOfLongestSubstring(string s) {
-  //HW1114
+  // HW1114
 
   // state 0 : (init)
   //   startIdx =0
@@ -252,84 +399,77 @@ int lengthOfLongestSubstring(string s) {
   //     go to state 1 (increase)
   // state 3: (exit)
 
-  enum _STATE_ID
-  {
-    S_INIT =0,
+  enum _STATE_ID {
+    S_INIT = 0,
     S_INCREASE,
     S_SHIFT,
-    S_EXIT,  
+    S_EXIT,
   };
 
   int state = S_INIT;
   int startIdx, endIdx;
-  while(state!= S_EXIT){
+  while (state != S_EXIT) {
 
-    switch(state){
-      case S_INIT:
-        {
-          startIdx =0; endIdx = 0;
-          state = S_INCREASE;
-           break; 
-        }
-      case S_INCREASE:
-        {
-          //  endIdx++; //handle the exit conidtion
-          //  if repeated char
-          //      endIdx --;
-          //      go to state 2 (shift)
-          //  otherwise:
-          //      go to state 1 (increase)
-          endIdx++;
-          if(endIdx == s.size()){
-            endIdx --;
-            state = S_EXIT;
-            break;
-          }
-          
-          if(checkRepeat(s, startIdx, endIdx)){
-            endIdx--;
-            state = S_SHIFT;
-          }
-          else state = S_INCREASE;
-          
-          break;
-        }
-      case S_SHIFT:
-        {
-          startIdx++; endIdx++;
-          if(endIdx == s.size()){
-            startIdx--; endIdx--;
-            state = S_EXIT;
-            break;
-          }
-          
-          if(checkRepeat(s, startIdx, endIdx)) state = S_SHIFT;
-          else state= S_INCREASE;          
-          break;
-        }
-      default:
-        {
-        printf("not a supported state = %d\n", state);
-        exit(-1);
-        }
+    switch (state) {
+    case S_INIT: {
+      startIdx = 0;
+      endIdx = 0;
+      state = S_INCREASE;
+      break;
     }
+    case S_INCREASE: {
+      //  endIdx++; //handle the exit conidtion
+      //  if repeated char
+      //      endIdx --;
+      //      go to state 2 (shift)
+      //  otherwise:
+      //      go to state 1 (increase)
+      endIdx++;
+      if (endIdx == s.size()) {
+        endIdx--;
+        state = S_EXIT;
+        break;
+      }
 
-    
+      if (checkRepeat(s, startIdx, endIdx)) {
+        endIdx--;
+        state = S_SHIFT;
+      } else
+        state = S_INCREASE;
+
+      break;
+    }
+    case S_SHIFT: {
+      startIdx++;
+      endIdx++;
+      if (endIdx == s.size()) {
+        startIdx--;
+        endIdx--;
+        state = S_EXIT;
+        break;
+      }
+
+      if (checkRepeat(s, startIdx, endIdx))
+        state = S_SHIFT;
+      else
+        state = S_INCREASE;
+      break;
+    }
+    default: {
+      printf("not a supported state = %d\n", state);
+      exit(-1);
+    }
+    }
   }
 
-
-
-  
-  
-  return endIdx-startIdx+1;
+  return endIdx - startIdx + 1;
 }
 
-void leetcode_lonest_substring_without_repeating()
-{
+void leetcode_lonest_substring_without_repeating() {
   // https://leetcode.com/problems/longest-substring-without-repeating-characters/description/
 
   /*
-  Given a string s, find the length of the longest 
+  Given a string s, find the length of the longest
 substring
  without repeating characters.
 
@@ -350,7 +490,8 @@ Example 3:
 Input: s = "pwwkew"
 Output: 3
 Explanation: The answer is "wke", with the length of 3.
-Notice that the answer must be a substring, "pwke" is a subsequence and not a substring.
+Notice that the answer must be a substring, "pwke" is a subsequence and not a
+substring.
 
 
 Constraints:
@@ -359,22 +500,17 @@ Constraints:
 s consists of English letters, digits, symbols and spaces.
 
   */
- string in;
+  string in;
 
- in = "abcabcbb";
- printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
+  in = "abcabcbb";
+  printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
 
- in = "bbbbb";
- printf("res= %d (ans: 1)\n", lengthOfLongestSubstring(in));
+  in = "bbbbb";
+  printf("res= %d (ans: 1)\n", lengthOfLongestSubstring(in));
 
- in = "pwwkew";
- printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
-
-
-
+  in = "pwwkew";
+  printf("res= %d (ans: 3)\n", lengthOfLongestSubstring(in));
 }
-
-
 
 class CSolTargetSumBase {
 
@@ -390,55 +526,56 @@ public:
 
 #define TARGETSUM_MEMO 1
 
-class CSolTargetVK: public CSolTargetSumBase {
+class CSolTargetVK : public CSolTargetSumBase {
 
 public:
   int findTargetSumWays(vector<int> &nums, int target) {
-    
-    return getNumWays(nums, nums.size() ,target); 
+
+    return getNumWays(nums, nums.size(), target);
   }
 
 private:
-  int getNumWays(vector<int> nums, int len, int target){
-    //exception
-    if(len== 0) return (target==0)?1:0;
+  int getNumWays(vector<int> nums, int len, int target) {
+    // exception
+    if (len == 0)
+      return (target == 0) ? 1 : 0;
 
-    //general
+      // general
 #if TARGETSUM_MEMO
     string keyStr = getHashKey(target, nums, len);
-    if(numsLUT.find(keyStr) != numsLUT.end()){
+    if (numsLUT.find(keyStr) != numsLUT.end()) {
       return numsLUT[keyStr];
     }
 #endif
-  
+
 #if TARGETSUM_MEMO
-    return numsLUT[keyStr]=
-      getNumWays(nums, len-1, target-nums[len-1]) + getNumWays(nums, len-1, target+ nums[len-1]);
+    return numsLUT[keyStr] = getNumWays(nums, len - 1, target - nums[len - 1]) +
+                             getNumWays(nums, len - 1, target + nums[len - 1]);
 #else
-    return getNumWays(nums, len-1, target-nums[len-1]) + getNumWays(nums, len-1, target+ nums[len-1]);
+    return getNumWays(nums, len - 1, target - nums[len - 1]) +
+           getNumWays(nums, len - 1, target + nums[len - 1]);
 #endif
-    
   }
 
 #if TARGETSUM_MEMO
 
-  string getHashKey(int sum, vector<int>& nums, int len){
+  string getHashKey(int sum, vector<int> &nums, int len) {
     stringstream ss;
-    for(int i=0; i< len; i++) ss << nums[i] << "_";
+    for (int i = 0; i < len; i++)
+      ss << nums[i] << "_";
     ss << "|" << sum;
     return ss.str();
-    
   }
+
 private:
-unordered_map<string, int> numsLUT; //combination, numways
+  unordered_map<string, int> numsLUT; // combination, numways
 #endif
-
 };
-
 
 class CSolTargetSum : public CSolTargetSumBase {
   int g_target;
   unordered_map<int, int> memo;
+
 public:
   int findTargetSumWays(vector<int> &nums, int target) {
     // HW1114
@@ -508,7 +645,7 @@ void leetcode_targetSum() {
   CSolTargetVK solVK;
   CSolTargetSumBase *sol;
 
-  //sol = &solDerived;
+  // sol = &solDerived;
   sol = &solVK;
 
   int res;
